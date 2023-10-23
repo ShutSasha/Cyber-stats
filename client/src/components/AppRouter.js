@@ -22,6 +22,7 @@ function AppRouter () {
 				<Nav className="mr-auto">
 					<Nav.Link as={Link} to="/tournament">Tournaments</Nav.Link>
 					<Nav.Link as={Link} to="/team">Team</Nav.Link>
+					<Nav.Link as={Link} to="/match">matchs</Nav.Link>
 				</Nav>
 			</Navbar>
 			{routing}

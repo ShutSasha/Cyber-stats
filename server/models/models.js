@@ -11,13 +11,6 @@ const Tournament = sequelize.define('tournament', {
 	tournament_points: { type: DataTypes.INTEGER }
 })
 
-const Match = sequelize.define('match', {
-	match_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-	match_date: { type: DataTypes.DATEONLY },
-	result: { type: DataTypes.BOOLEAN },
-	match_points: { type: DataTypes.INTEGER }
-})
-
 const Team = sequelize.define('team', {
 	team_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 	team_name: { type: DataTypes.STRING },
@@ -28,6 +21,28 @@ const Team = sequelize.define('team', {
 	team_points: { type: DataTypes.INTEGER },
 	img: { type: DataTypes.STRING }
 })
+
+const Match = sequelize.define('match', {
+	match_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+	match_date: { type: DataTypes.DATEONLY },
+	result: { type: DataTypes.BOOLEAN },
+	match_points: { type: DataTypes.INTEGER },
+	team1_id: {
+		type: DataTypes.INTEGER,
+		references: {
+			model: Team,
+			key: 'team_id'
+		}
+	},
+	team2_id: {
+		type: DataTypes.INTEGER,
+		references: {
+			model: Team,
+			key: 'team_id'
+		}
+	}
+});
+
 
 const EsportsPlayer = sequelize.define('esports_player', {
 	esports_player_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },

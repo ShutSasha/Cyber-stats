@@ -4,6 +4,7 @@ const uuid = require('uuid')
 const path = require('path')
 const ApiError = require('../error/ApiError')
 const fs = require('fs');
+const { Op } = require('sequelize')
 class TeamController {
 	async create (req, res, next) {
 		try {
@@ -28,7 +29,6 @@ class TeamController {
 					})
 				});
 			}
-
 
 			const team = await Team.create({
 				team_name, team_country, date_of_creating_team, coach_team,
@@ -63,6 +63,43 @@ class TeamController {
 			next(ApiError.badRequest(error.message))
 		}
 	}
+
+	// async delete (req, res, next) {
+	// 	try {
+	// 		const { id } = req.params;
+	// 		const team = await Team.findOne({ where: { team_id: id } });
+
+	// 		if (!team) {
+	// 			return next(ApiError.badRequest('Команда не найдена'));
+	// 		}
+	// 		const matches = await Match.findAll({
+	// 			where: {
+	// 				[Op.or]: [
+	// 					{ team1_id: id },
+	// 					{ team2_id: id }
+	// 				]
+	// 			}
+	// 		});
+
+
+
+	// 		if (matches.length > 0) {
+	// 			return next(ApiError.badRequest('Невозможно удалить команду с связанными матчами'));
+	// 		}
+
+	// 		const filePath = path.resolve(__dirname, '..', 'static', team.img);
+	// 		fs.unlink(filePath, (err) => {
+	// 			if (err) {
+	// 				console.error(`Error deleting file: ${err}`);
+	// 			}
+	// 		});
+
+	// 		await team.destroy();
+	// 		return res.json({ message: 'Команда была удалена' });
+	// 	} catch (error) {
+	// 		next(ApiError.badRequest(error.message));
+	// 	}
+	// }
 
 
 	async update (req, res, next) {

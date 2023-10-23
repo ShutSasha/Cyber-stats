@@ -19,8 +19,11 @@ function EditTeamModal ({ show, onClose, onUpdate, editingTeam }) {
 			setCoach(editingTeam.coach_team);
 			setGlobalRating(editingTeam.global_rating);
 			setPoints(editingTeam.team_points);
+			setImg(null); // добавить эту строку
 		}
 	}, [editingTeam]);
+
+
 
 	const handleSubmit = (event) => {
 		event.preventDefault();

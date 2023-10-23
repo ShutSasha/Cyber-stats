@@ -1,9 +1,142 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
+import MatchModal from '../components/MatchModal';
+import EditMatchModal from '../components/EditMatchModal';
+
 
 function Match () {
+	const [matches, setMatches] = useState([]);
+	const [teams, setTeams] = useState({});
+	const [showModal, setShowModal] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
+	const [editingMatch, setEditingMatch] = useState(null);
+
+	const openModal = () => setShowModal(true);
+	const closeModal = () => setShowModal(false);
+	const openEditModal = () => setShowEditModal(true);
+	const closeEditModal = () => setShowEditModal(false);
+
+
+	const createMatch = (matchData) => {
+		axios.post('http://localhost:5000/api/match', matchData)
+			.then(response => {
+				console.log(response.data);
+				setMatches([...matches, response.data]);
+				closeModal()
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	};
+
+	const deleteMatch = (id) => {
+		axios.delete(`http://localhost:5000/api/match/${id}`)
+			.then(response => {
+				console.log(response.data);
+				setMatches(matches.filter(match => match.match_id !== id));
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	};
+
+	const updateMatch = (id, updatedMatchData) => {
+		axios.put(`http://localhost:5000/api/match/${id}`, updatedMatchData)
+			.then(response => {
+				setMatches(matches.map(match =>
+					match.match_id === id ? { ...match, ...updatedMatchData } : match
+				));
+				closeEditModal()
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	};
+
+	useEffect(() => {
+		axios.get('http://localhost:5000/api/team')
+			.then(response => {
+				const teamsById = response.data.rows.reduce((acc, team) => {
+					acc[team.team_id] = team;
+					return acc;
+				}, {});
+				setTeams(teamsById);
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
+
+	useEffect(() => {
+		axios.get('http://localhost:5000/api/match')
+			.then(response => {
+				setMatches(response.data);
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
+
+
+
 	return (
-		<div>Match</div>
-	)
+		<div>
+			<h1>Matches</h1>
+			<Table striped bordered hover>
+				<thead>
+					<tr>
+						<th>Match ID</th>
+						<th>Match Date</th>
+						<th>Result</th>
+						<th>Match Points</th>
+						<th>Team 1</th>
+						<th>Team 2</th>
+						<th>Team 1 Image</th>
+						<th>Team 2 Image</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{matches && teams && matches.map(match => (
+						<tr key={match.match_id}>
+							<td>{match.match_id}</td>
+							<td>{match.match_date}</td>
+							<td>{match.result ? 'Team 1 Wins' : 'Team 2 Wins'}</td>
+							<td>{match.match_points}</td>
+							<td>{teams[match.team1_id]?.team_name}</td>
+							<td>{teams[match.team2_id]?.team_name}</td>
+							<td><img src={`http://localhost:5000/${teams[match.team1_id]?.img}`} alt="Team 1" style={{ width: '70px', height: '70px' }} /></td>
+							<td><img src={`http://localhost:5000/${teams[match.team2_id]?.img}`} alt="Team 2" style={{ width: '70px', height: '70px' }} /></td>
+							<td>
+								<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+									<Button variant="danger" onClick={() => deleteMatch(match.match_id)}>Delete</Button>
+									<Button variant="primary" onClick={() => { setEditingMatch(match); openEditModal(); }}>Edit</Button>
+								</div>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</Table>
+			<Button onClick={openModal}>Create Match</Button>
+
+			<MatchModal
+				show={showModal}
+				onClose={closeModal}
+				onCreate={createMatch}
+			/>
+
+			<EditMatchModal
+				show={showEditModal}
+				onClose={closeEditModal}
+				onUpdate={(updatedMatchData) => updateMatch(editingMatch.match_id, updatedMatchData)}
+				editingMatch={editingMatch}
+			/>
+		</div>
+	);
 }
 
-export default Match
+export default Match;
+
+
