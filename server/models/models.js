@@ -4,8 +4,8 @@ const { DataTypes } = require('sequelize')
 const Tournament = sequelize.define('tournament', {
 	tourament_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 	tournament_name: { type: DataTypes.STRING },
-	tournamen_data_start: { type: DataTypes.DATE },
-	tournamen_data_end: { type: DataTypes.DATE },
+	tournamen_date_start: { type: DataTypes.DATE },
+	tournamen_date_end: { type: DataTypes.DATE },
 	tournament_place: { type: DataTypes.STRING },
 	prize_fund: { type: DataTypes.INTEGER },
 	tournament_points: { type: DataTypes.INTEGER }
@@ -22,10 +22,11 @@ const Team = sequelize.define('team', {
 	team_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 	team_name: { type: DataTypes.STRING },
 	team_country: { type: DataTypes.STRING },
-	data_of_creating_team: { type: DataTypes.DATE },
+	date_of_creating_team: { type: DataTypes.DATE },
 	coach_team: { type: DataTypes.STRING },
 	global_rating: { type: DataTypes.INTEGER },
-	team_points: { type: DataTypes.INTEGER }
+	team_points: { type: DataTypes.INTEGER },
+	img: { type: DataTypes.STRING }
 })
 
 const EsportsPlayer = sequelize.define('esports_player', {
@@ -34,11 +35,10 @@ const EsportsPlayer = sequelize.define('esports_player', {
 	surname: { type: DataTypes.STRING },
 	nickname: { type: DataTypes.STRING },
 	role: { type: DataTypes.STRING },
-	global_rating: { type: DataTypes.INTEGER },
-	role_rating: { type: DataTypes.INTEGER },
+	global_rating: { type: DataTypes.FLOAT },
+	role_rating: { type: DataTypes.FLOAT },
 	esports_player_points: { type: DataTypes.INTEGER },
-	data_of_birth: { type: DataTypes.DATE },
-	esports_player_points: { type: DataTypes.INTEGER }
+	date_of_birth: { type: DataTypes.DATE }
 })
 
 const TourDestination = sequelize.define('tour_destination', {
@@ -54,7 +54,7 @@ Match.belongsTo(Tournament)
 Team.hasOne(Match)
 Match.hasMany(Team)
 
-Team.hasMany(EsportsPlayer)
+Team.hasMany(EsportsPlayer, { as: 'players' })
 EsportsPlayer.belongsTo(Team)
 
 module.exports = {
