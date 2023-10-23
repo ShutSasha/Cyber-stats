@@ -1,15 +1,17 @@
 import React from 'react'
-import { Routes, Route, } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 import { publicRoutes } from '../routes'
+import Tournament from '../pages/Tournament'
 
 function AppRouter () {
-	return (
-		<Routes>
-			{publicRoutes.map(({ path, Component }) =>
-				<Route key={path} path={path} Component={Component} exact />
-			)}
-		</Routes>
+	const routing = useRoutes(
+		[
+			...publicRoutes.map(({ path, Component }) => ({ path, element: <Component /> })),
+			{ path: '/tournament', element: <Tournament /> },
+			{ path: '*', element: <Tournament /> }
+		],
 	)
+	return routing
 }
 
 export default AppRouter

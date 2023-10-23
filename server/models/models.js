@@ -2,7 +2,7 @@ const sequelize = require('../db')
 const { DataTypes } = require('sequelize')
 
 const Tournament = sequelize.define('tournament', {
-	tourament_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+	tournament_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
 	tournament_name: { type: DataTypes.STRING },
 	tournamen_date_start: { type: DataTypes.DATE },
 	tournamen_date_end: { type: DataTypes.DATE },

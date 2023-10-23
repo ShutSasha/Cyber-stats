@@ -12,6 +12,20 @@ class TournamentController {
 		return res.json(tournament)
 	}
 
+	async delete (req, res, next) {
+		try {
+			const { id } = req.params
+			const tournament = await Tournament.findOne({ where: { tournament_id: id } })
+			if (!tournament) {
+				return next(ApiError.badRequest('Tournament not founded'))
+			}
+			await tournament.destroy()
+			return res.json({ message: 'Tournament was deleted' })
+		} catch (error) {
+			next(ApiError.badRequest(error.message))
+		}
+	}
+
 	async getAll (req, res) {
 		const tournaments = await Tournament.findAll()
 		return res.json(tournaments)
