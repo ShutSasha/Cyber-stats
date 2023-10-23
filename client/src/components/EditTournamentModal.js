@@ -1,14 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 
-function TournamentModal ({ show, onClose, onCreate }) {
+function EditTournamentModal ({ show, onClose, onUpdate, editingTournament }) {
 	const [tournamentName, setTournamentName] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
 	const [place, setPlace] = useState("");
 	const [prizeFund, setPrizeFund] = useState(0);
 	const [points, setPoints] = useState(0);
+
+	useEffect(() => {
+		if (editingTournament) {
+			setTournamentName(editingTournament.tournament_name);
+			setStartDate(editingTournament.tournamen_date_start);
+			setEndDate(editingTournament.tournamen_date_end);
+			setPlace(editingTournament.tournament_place);
+			setPrizeFund(editingTournament.prize_fund);
+			setPoints(editingTournament.tournament_points);
+		}
+	}, [editingTournament]);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -22,13 +33,13 @@ function TournamentModal ({ show, onClose, onCreate }) {
 			tournament_points: points
 		};
 
-		onCreate(tournamentData);
+		onUpdate(tournamentData);
 	};
 
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Создать турнир</Modal.Title>
+				<Modal.Title>Редактировать турнир</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -56,17 +67,17 @@ function TournamentModal ({ show, onClose, onCreate }) {
 						Points:
 						<input type="number" value={points} onChange={e => setPoints(e.target.value)} />
 					</label>
-					<input type="submit" value="Создать турнир" />
+					<input type="submit" value="Обновить турнир" />
 				</form>
 			</Modal.Body>
 
 			<Modal.Footer>
 				<Button variant="secondary" onClick={onClose}>
-					Закрыть
+					Close
 				</Button>
 			</Modal.Footer>
 		</Modal>
 	);
 }
 
-export default TournamentModal;
+export default EditTournamentModal;
