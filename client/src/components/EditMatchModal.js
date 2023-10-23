@@ -36,7 +36,7 @@ function EditMatchModal ({ show, onClose, onUpdate, editingMatch }) {
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Редактировать матч</Modal.Title>
+				<Modal.Title>Edit match</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -63,7 +63,7 @@ function EditMatchModal ({ show, onClose, onUpdate, editingMatch }) {
 						ID of Team 2:
 						<input type="number" value={team2Id} onChange={e => setTeam2Id(e.target.value)} />
 					</label>
-					<input type="submit" value="Обновить матч" />
+					<input type="submit" value="Update match" />
 				</form>
 			</Modal.Body>
 

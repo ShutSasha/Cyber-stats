@@ -19,7 +19,7 @@ function EditTeamModal ({ show, onClose, onUpdate, editingTeam }) {
 			setCoach(editingTeam.coach_team);
 			setGlobalRating(editingTeam.global_rating);
 			setPoints(editingTeam.team_points);
-			setImg(null); // добавить эту строку
+			setImg(null);
 		}
 	}, [editingTeam]);
 
@@ -45,7 +45,7 @@ function EditTeamModal ({ show, onClose, onUpdate, editingTeam }) {
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Редактировать команду</Modal.Title>
+				<Modal.Title>Edit team</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }} encType="multipart/form-data">
@@ -77,7 +77,7 @@ function EditTeamModal ({ show, onClose, onUpdate, editingTeam }) {
 						Image:
 						<input type="file" onChange={e => setImg(e.target.files[0])} />
 					</label>
-					<input type="submit" value="Обновить команду" />
+					<input type="submit" value="Update team" />
 				</form>
 			</Modal.Body>
 

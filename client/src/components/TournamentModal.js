@@ -28,7 +28,7 @@ function TournamentModal ({ show, onClose, onCreate }) {
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Создать турнир</Modal.Title>
+				<Modal.Title>Create tournament</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -56,13 +56,13 @@ function TournamentModal ({ show, onClose, onCreate }) {
 						Points:
 						<input type="number" value={points} onChange={e => setPoints(e.target.value)} />
 					</label>
-					<input type="submit" value="Создать турнир" />
+					<input type="submit" value="Create tournament" />
 				</form>
 			</Modal.Body>
 
 			<Modal.Footer>
 				<Button variant="secondary" onClick={onClose}>
-					Закрыть
+					Close
 				</Button>
 			</Modal.Footer>
 		</Modal>

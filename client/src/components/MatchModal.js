@@ -26,7 +26,7 @@ function MatchModal ({ show, onClose, onCreate }) {
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Создать матч</Modal.Title>
+				<Modal.Title>Create match</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -53,7 +53,7 @@ function MatchModal ({ show, onClose, onCreate }) {
 						ID of Team 2:
 						<input type="number" value={team2Id} onChange={e => setTeam2Id(e.target.value)} />
 					</label>
-					<input type="submit" value="Создать матч" />
+					<input type="submit" value="Create match" />
 				</form>
 			</Modal.Body>
 

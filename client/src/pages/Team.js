@@ -3,7 +3,7 @@ import axios from 'axios';
 import Table from 'react-bootstrap/Table';
 import TeamModal from '../components/TeamModal'; // Предполагается, что вы создали этот компонент
 import EditTeamModal from '../components/EditTeamModal'; // Предполагается, что вы создали этот компонент
-// import Button from 'react-bootstrap/Button';
+import Button from 'react-bootstrap/Button';
 import { toast } from 'react-toastify';
 
 
@@ -109,12 +109,8 @@ function Team () {
 							<td>{team.team_points}</td>
 							<td>
 								<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-									<button onClick={() => deleteTeam(team.team_id)}>
-										Delete
-									</button>
-									<button onClick={() => { setEditingTeam(team); openEditModal(); }}>
-										Edit
-									</button>
+									<Button variant="danger" onClick={() => deleteTeam(team.team_id)}>Delete</Button>
+									<Button variant="primary" onClick={() => { setEditingTeam(team); openEditModal(); }}>Edit</Button>
 								</div>
 							</td>
 						</tr>
@@ -123,7 +119,7 @@ function Team () {
 
 			</Table>
 
-			<button onClick={openModal}>Create Team</button>
+			<Button onClick={openModal}>Create Team</Button>
 
 			<TeamModal
 				show={showModal}

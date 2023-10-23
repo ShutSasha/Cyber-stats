@@ -9,7 +9,7 @@ function TeamModal ({ show, onClose, setTeams, teams }) {
 	const [coach, setCoach] = useState("");
 	const [globalRating, setGlobalRating] = useState(0);
 	const [points, setPoints] = useState(0);
-	const [image, setImage] = useState(null); // Добавьте это
+	const [image, setImage] = useState(null);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
@@ -35,7 +35,7 @@ function TeamModal ({ show, onClose, setTeams, teams }) {
 
 			const data = await response.json();
 			console.log(data);
-			setTeams([...teams, data]); // Добавьте новую команду в список
+			setTeams([...teams, data]);
 			onClose();
 		} catch (error) {
 			console.error(error);
@@ -47,7 +47,7 @@ function TeamModal ({ show, onClose, setTeams, teams }) {
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
-				<Modal.Title>Создать команду</Modal.Title>
+				<Modal.Title>Create team</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -79,7 +79,7 @@ function TeamModal ({ show, onClose, setTeams, teams }) {
 						Image:
 						<input type="file" onChange={e => setImage(e.target.files[0])} />
 					</label>
-					<input type="submit" value="Создать команду" />
+					<input type="submit" value="Create team" />
 				</form>
 			</Modal.Body>
 
