@@ -51,7 +51,6 @@ function Tournament () {
 			});
 	};
 
-
 	useEffect(() => {
 		axios.get('http://localhost:5000/api/tournament')
 			.then(response => {

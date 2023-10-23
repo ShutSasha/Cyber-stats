@@ -3,9 +3,12 @@ import AppRouter from "./components/AppRouter";
 
 function App () {
 	return (
-		<BrowserRouter>
-			<AppRouter />
-		</BrowserRouter>
+		<div style={{ padding: '0 10px 0 10px' }}>
+			<BrowserRouter>
+				<AppRouter />
+			</BrowserRouter>
+		</div>
+
 	);
 }
 

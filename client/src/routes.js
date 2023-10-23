@@ -14,7 +14,7 @@ export const publicRoutes = [
 		Component: Player
 	},
 	{
-		path: TEAM_ROUTE + '/:id',
+		path: TEAM_ROUTE,
 		Component: Team
 	},
 	{
