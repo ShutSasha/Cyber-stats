@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Table from 'react-bootstrap/Table';
-import TeamModal from '../components/TeamModal'; // Предполагается, что вы создали этот компонент
-import EditTeamModal from '../components/EditTeamModal'; // Предполагается, что вы создали этот компонент
+import TeamModal from '../components/TeamModal';
+import EditTeamModal from '../components/EditTeamModal';
 import Button from 'react-bootstrap/Button';
 import { toast } from 'react-toastify';
 
@@ -84,7 +84,6 @@ function Team () {
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						<th>Team ID</th>
 						<th>Image</th>
 						<th>Team Name</th>
 						<th>Country</th>
@@ -97,7 +96,6 @@ function Team () {
 				<tbody>
 					{teams.map(team => (
 						<tr key={team.team_id}>
-							<td>{team.team_id}</td>
 							<td>
 								{team.img && <img src={`http://localhost:5000/${team.img}`} alt={team.team_name} style={{ width: '70px', height: '70px' }} />}
 							</td>

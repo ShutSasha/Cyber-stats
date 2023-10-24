@@ -22,7 +22,6 @@ function Match () {
 	const createMatch = (matchData) => {
 		axios.post('http://localhost:5000/api/match', matchData)
 			.then(response => {
-				console.log(response.data);
 				setMatches([...matches, response.data]);
 				closeModal()
 			})
@@ -87,7 +86,6 @@ function Match () {
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						<th>Match ID</th>
 						<th>Match Date</th>
 						<th>Result</th>
 						<th>Match Points</th>
@@ -101,7 +99,6 @@ function Match () {
 				<tbody>
 					{matches && teams && matches.map(match => (
 						<tr key={match.match_id}>
-							<td>{match.match_id}</td>
 							<td>{match.match_date}</td>
 							<td>{match.result ? 'Team 1 Wins' : 'Team 2 Wins'}</td>
 							<td>{match.match_points}</td>
