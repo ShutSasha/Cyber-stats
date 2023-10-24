@@ -4,8 +4,8 @@ const ApiError = require('../error/ApiError')
 class MatchController {
 	async create (req, res, next) {
 		try {
-			const { match_date, result, match_points, team1_id, team2_id } = req.body
-			const match = await Match.create({ match_date, result, match_points, team1_id, team2_id })
+			const { tournament_id, match_date, result, match_points, team1_id, team2_id } = req.body
+			const match = await Match.create({ tournament_id, match_date, result, match_points, team1_id, team2_id })
 
 			return res.json(match)
 		} catch (error) {
@@ -32,14 +32,14 @@ class MatchController {
 	async update (req, res, next) {
 		try {
 			const { id } = req.params;
-			const { match_date, result, match_points, team1_id, team2_id } = req.body;
+			const { tournament_id, match_date, result, match_points, team1_id, team2_id } = req.body;
 			const match = await Match.findOne({ where: { match_id: id } });
 
 			if (!match) {
 				return next(ApiError.badRequest('Match not found'));
 			}
 
-			const updatedMatch = await match.update({ match_date, result, match_points, team1_id, team2_id });
+			const updatedMatch = await match.update({ tournament_id, match_date, result, match_points, team1_id, team2_id });
 			return res.json(updatedMatch);
 		} catch (error) {
 			next(ApiError.badRequest(error.message));

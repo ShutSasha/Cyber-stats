@@ -12,7 +12,8 @@ function MatchModal ({ show, onClose, onCreate }) {
 	const [team1Coach, setTeam1Coach] = useState("");
 	const [team2Name, setTeam2Name] = useState("");
 	const [team2Coach, setTeam2Coach] = useState("");
-
+	const [tournamentId, setTournamentId] = useState("");
+	const [tournaments, setTournaments] = useState([]);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -25,6 +26,7 @@ function MatchModal ({ show, onClose, onCreate }) {
 			match_date: matchDate,
 			result: result,
 			match_points: matchPoints,
+			tournament_id: tournamentId,
 			team1_id: team1 ? team1.team_id : null,
 			team2_id: team2 ? team2.team_id : null
 		};
@@ -42,6 +44,17 @@ function MatchModal ({ show, onClose, onCreate }) {
 			});
 	}, []);
 
+	useEffect(() => {
+		axios.get('http://localhost:5000/api/tournament')
+			.then(response => {
+				setTournaments(response.data);
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
+
+
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
@@ -49,6 +62,15 @@ function MatchModal ({ show, onClose, onCreate }) {
 			</Modal.Header>
 			<Modal.Body>
 				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+					<label>
+						Tournament:
+						<select value={tournamentId} onChange={e => setTournamentId(e.target.value)}>
+							<option value="">Select a tournament...</option>
+							{tournaments.map((tournament, index) => (
+								<option key={index} value={tournament.tournament_id}>{tournament.tournament_name}</option>
+							))}
+						</select>
+					</label>
 					<label>
 						Date of match:
 						<input type="date" value={matchDate} onChange={e => setMatchDate(e.target.value)} />
@@ -102,9 +124,6 @@ function MatchModal ({ show, onClose, onCreate }) {
 						Name of team 2:
 						<input type="text" value={team2Name} readOnly />
 					</label>
-
-
-
 					<input type="submit" value="Create match" />
 				</form>
 			</Modal.Body>

@@ -24,6 +24,7 @@ const Team = sequelize.define('team', {
 
 const Match = sequelize.define('match', {
 	match_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+	tournament_id: { type: DataTypes.INTEGER },
 	match_date: { type: DataTypes.DATEONLY },
 	result: { type: DataTypes.BOOLEAN },
 	match_points: { type: DataTypes.INTEGER },
@@ -66,8 +67,6 @@ Team.belongsToMany(Tournament, { through: TourDestination })
 Tournament.hasMany(Match)
 Match.belongsTo(Tournament)
 
-Team.hasOne(Match)
-Match.hasMany(Team)
 
 Team.hasMany(EsportsPlayer, { as: 'players' })
 EsportsPlayer.belongsTo(Team)
@@ -78,4 +77,7 @@ module.exports = {
 	EsportsPlayer,
 	TourDestination,
 	Match
-} 
+}
+
+
+

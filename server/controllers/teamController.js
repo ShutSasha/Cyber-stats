@@ -47,7 +47,7 @@ class TeamController {
 			const { id } = req.params
 			const team = await Team.findOne({ where: { team_id: id } })
 			if (!team) {
-				return next(ApiError.badRequest('Команда не найдена'))
+				return next(ApiError.badRequest('Team not founded'))
 			}
 
 			const filePath = path.resolve(__dirname, '..', 'static', team.img);
@@ -58,49 +58,11 @@ class TeamController {
 			});
 
 			await team.destroy()
-			return res.json({ message: 'Команда была удалена' })
+			return res.json({ message: 'Team was deleted' })
 		} catch (error) {
 			next(ApiError.badRequest(error.message))
 		}
 	}
-
-	// async delete (req, res, next) {
-	// 	try {
-	// 		const { id } = req.params;
-	// 		const team = await Team.findOne({ where: { team_id: id } });
-
-	// 		if (!team) {
-	// 			return next(ApiError.badRequest('Команда не найдена'));
-	// 		}
-	// 		const matches = await Match.findAll({
-	// 			where: {
-	// 				[Op.or]: [
-	// 					{ team1_id: id },
-	// 					{ team2_id: id }
-	// 				]
-	// 			}
-	// 		});
-
-
-
-	// 		if (matches.length > 0) {
-	// 			return next(ApiError.badRequest('Невозможно удалить команду с связанными матчами'));
-	// 		}
-
-	// 		const filePath = path.resolve(__dirname, '..', 'static', team.img);
-	// 		fs.unlink(filePath, (err) => {
-	// 			if (err) {
-	// 				console.error(`Error deleting file: ${err}`);
-	// 			}
-	// 		});
-
-	// 		await team.destroy();
-	// 		return res.json({ message: 'Команда была удалена' });
-	// 	} catch (error) {
-	// 		next(ApiError.badRequest(error.message));
-	// 	}
-	// }
-
 
 	async update (req, res, next) {
 		try {
