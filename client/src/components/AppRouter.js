@@ -2,6 +2,7 @@ import React from 'react'
 import { useRoutes } from 'react-router-dom'
 import { publicRoutes } from '../routes'
 import Tournament from '../pages/Tournament'
+import TournamentMatches from '../pages/TournamentMathces'
 import { Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
@@ -11,6 +12,7 @@ function AppRouter () {
 		[
 			...publicRoutes.map(({ path, Component }) => ({ path, element: <Component /> })),
 			{ path: '/tournament', element: <Tournament /> },
+			{ path: '/tournaments/:id', element: <TournamentMatches /> },
 			{ path: '*', element: <Tournament /> }
 		],
 	)

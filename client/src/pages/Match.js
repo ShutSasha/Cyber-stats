@@ -19,6 +19,24 @@ function Match () {
 	const closeEditModal = () => setShowEditModal(false);
 
 
+	const [tournaments, setTournaments] = useState({});
+
+	useEffect(() => {
+		axios.get('http://localhost:5000/api/tournament')
+			.then(response => {
+				const tournamentsById = response.data.reduce((acc, tournament) => {
+					acc[tournament.tournament_id] = tournament;
+					return acc;
+				}, {});
+				setTournaments(tournamentsById);
+			})
+			.catch(error => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
+
+
+
 	const createMatch = (matchData) => {
 		axios.post('http://localhost:5000/api/match', matchData)
 			.then(response => {
@@ -87,6 +105,7 @@ function Match () {
 				<thead>
 					<tr>
 						<th>Match Date</th>
+						<th>Tournament</th>
 						<th>Result</th>
 						<th>Match Points</th>
 						<th>Team 1</th>
@@ -100,6 +119,7 @@ function Match () {
 					{matches && teams && matches.map(match => (
 						<tr key={match.match_id}>
 							<td>{match.match_date}</td>
+							<td>{tournaments[match.tournament_id]?.tournament_name}</td> 
 							<td>{match.result ? 'Team 1 Wins' : 'Team 2 Wins'}</td>
 							<td>{match.match_points}</td>
 							<td>{teams[match.team1_id]?.team_name}</td>

@@ -4,6 +4,7 @@ import Table from 'react-bootstrap/Table';
 import TournamentModal from '../components/TournamentModal';
 import EditTournamentModal from '../components/EditTournamentModal'
 import Button from 'react-bootstrap/esm/Button';
+import { Link } from 'react-router-dom';
 
 function Tournament () {
 	const [tournaments, setTournaments] = useState([]);
@@ -87,12 +88,11 @@ function Tournament () {
 							<td>{tournament.tournament_points}</td>
 							<td>
 								<div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-									{/* <button onClick={() => deleteTournament(tournament.tournament_id)}>
-										Delete
-									</button>
-									<button onClick={() => { setEditingTournament(tournament); openEditModal(); }}>
-										Edit
-									</button> */}
+
+									<Link to={`/tournaments/${tournament.tournament_id}`}>
+										<Button variant="info">View</Button>
+									</Link>
+
 									<Button variant="danger" onClick={() => deleteTournament(tournament.tournament_id)}>Delete</Button>
 									<Button variant="primary" onClick={() => { setEditingTournament(tournament); openEditModal(); }}>Edit</Button>
 								</div>
