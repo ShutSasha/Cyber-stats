@@ -119,7 +119,7 @@ function Match () {
 					{matches && teams && matches.map(match => (
 						<tr key={match.match_id}>
 							<td>{match.match_date}</td>
-							<td>{tournaments[match.tournament_id]?.tournament_name}</td> 
+							<td>{tournaments[match.tournament_id]?.tournament_name}</td>
 							<td>{match.result ? 'Team 1 Wins' : 'Team 2 Wins'}</td>
 							<td>{match.match_points}</td>
 							<td>{teams[match.team1_id]?.team_name}</td>

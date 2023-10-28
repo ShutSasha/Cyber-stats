@@ -19,6 +19,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api', router)
 
+// app.post('/query-to-db', async (req, res) => {
+// 	const { query } = req.body;
+// 	try {
+// 		const result = await sequelize.query(query, { type: QueryTypes.SELECT });
+// 		res.json(result);
+// 	} catch (error) {
+// 		res.status(400).json({ error: error.message });
+// 	}
+// });
 // only in the end
 app.use(errorHandler)
 
