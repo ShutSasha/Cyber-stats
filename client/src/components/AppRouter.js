@@ -6,6 +6,7 @@ import TournamentMatches from '../pages/TournamentMathces'
 import { Link } from 'react-router-dom';
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import MainPage from '../pages/MainPage'
 
 function AppRouter () {
 	const routing = useRoutes(
@@ -13,7 +14,7 @@ function AppRouter () {
 			...publicRoutes.map(({ path, Component }) => ({ path, element: <Component /> })),
 			{ path: '/tournament', element: <Tournament /> },
 			{ path: '/tournaments/:id', element: <TournamentMatches /> },
-			{ path: '*', element: <Tournament /> }
+			{ path: '*', element: <MainPage /> }
 		],
 	)
 
@@ -23,9 +24,10 @@ function AppRouter () {
 				<Navbar.Brand href="/">My App</Navbar.Brand>
 				<Nav className="mr-auto">
 					<Nav.Link as={Link} to="/tournament">Tournaments</Nav.Link>
-					<Nav.Link as={Link} to="/team">Team</Nav.Link>
-					<Nav.Link as={Link} to="/match">matchs</Nav.Link>
+					<Nav.Link as={Link} to="/team">Team</Nav.Link>		
 					<Nav.Link as={Link} to="/query-to-db">Query</Nav.Link>
+					<Nav.Link as={Link} to="/tour-destination">Tour destionation</Nav.Link>
+					{/* <Nav.Link as={Link} to="/match">matchs</Nav.Link> */}
 				</Nav>
 			</Navbar>
 			{routing}

@@ -5,11 +5,13 @@ const matchRouter = require('./matchRouter')
 const teamRouter = require('./teamRouter')
 const tournamentRouter = require('./tournamentRouter')
 const queryRouter = require('./queryToDbRouter')
+const tour_destination = require('./tourDestinations')
 
 router.use('/player', esportsPlayerRouter)
 router.use('/match', matchRouter)
 router.use('/team', teamRouter)
 router.use('/tournament', tournamentRouter)
 router.use('/query-to-db', queryRouter)
+router.use('/tour-destinations', tour_destination)
 
 module.exports = router

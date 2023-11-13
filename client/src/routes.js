@@ -2,8 +2,9 @@ import Match from "./pages/Match"
 import Player from "./pages/Player"
 import QueyToDB from "./pages/QueyToDB"
 import Team from "./pages/Team"
+import TourDestination from "./pages/TourDestination"
 import Tournament from "./pages/Tournament"
-import { MATCH_ROUTE, PLAYER_ROUTE, QUERY_TO_DB, TEAM_ROUTE, TOURNAMENT_ROUTE } from "./utils/consts"
+import { MATCH_ROUTE, PLAYER_ROUTE, QUERY_TO_DB, TEAM_ROUTE, TOURNAMENT_ROUTE, TOUR_DESTIONSTION } from "./utils/consts"
 
 export const publicRoutes = [
 	{
@@ -25,5 +26,9 @@ export const publicRoutes = [
 	{
 		path: QUERY_TO_DB,
 		Component: QueyToDB
+	},
+	{
+		path: TOUR_DESTIONSTION,
+		Component: TourDestination
 	}
 ]

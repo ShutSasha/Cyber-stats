@@ -32,6 +32,24 @@ function MatchModal ({ show, onClose, onCreate }) {
 		};
 
 		onCreate(matchData);
+
+		if (team1) {
+			axios.post('http://localhost:5000/api/tour_destinations', {
+				tournamentTournamentId: tournamentId,
+				teamTeamId: team1.team_id
+			}).catch(error => {
+				console.error(`Error: ${error}`);
+			});
+		}
+	
+		if (team2) {
+			axios.post('http://localhost:5000/api/tour_destinations', {
+				tournamentTournamentId: tournamentId,
+				teamTeamId: team2.team_id
+			}).catch(error => {
+				console.error(`Error: ${error}`);
+			});
+		}
 	};
 
 	useEffect(() => {

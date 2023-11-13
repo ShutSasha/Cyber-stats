@@ -84,7 +84,7 @@ function Team () {
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						<th>Image</th>
+						{/* <th>Image</th> */}
 						<th>Team Name</th>
 						<th>Country</th>
 						<th>Date of Creation</th>
@@ -96,9 +96,9 @@ function Team () {
 				<tbody>
 					{teams.map(team => (
 						<tr key={team.team_id}>
-							<td>
+							{/* <td>
 								{team.img && <img src={`http://localhost:5000/${team.img}`} alt={team.team_name} style={{ width: '70px', height: '70px' }} />}
-							</td>
+							</td> */}
 							<td>{team.team_name}</td>
 							<td>{team.team_country}</td>
 							<td>{team.date_of_creating_team}</td>
