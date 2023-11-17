@@ -71,12 +71,29 @@ function Team () {
 	useEffect(() => {
 		axios.get('http://localhost:5000/api/team')
 			.then(response => {
-				setTeams(response.data.rows);
+					const teamPromises = response.data.rows.map(team => {
+						return axios.head(`http://localhost:5000/${team.img}`)
+							.then(() => {
+								
+								return { ...team, imgExists: true };
+							})
+							.catch(err => {
+								console.info(`${err} + we can't find img`);
+								axios.put(`http://localhost:5000/api/team/teamErrorImg/${team.team_id}`)
+								return { ...team, imgExists: false};
+							});
+					});
+	
+					Promise.all(teamPromises)
+							.then(teams => {
+								setTeams(teams);
+							});
 			})
 			.catch(error => {
 				console.error(`Error: ${error}`);
 			});
 	}, []);
+	
 
 	return (
 		<div>
@@ -84,7 +101,7 @@ function Team () {
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						{/* <th>Image</th> */}
+						<th>Image</th>
 						<th>Team Name</th>
 						<th>Country</th>
 						<th>Date of Creation</th>
@@ -96,9 +113,9 @@ function Team () {
 				<tbody>
 					{teams.map(team => (
 						<tr key={team.team_id}>
-							{/* <td>
+							<td>
 								{team.img && <img src={`http://localhost:5000/${team.img}`} alt={team.team_name} style={{ width: '70px', height: '70px' }} />}
-							</td> */}
+							</td>
 							<td>{team.team_name}</td>
 							<td>{team.team_country}</td>
 							<td>{team.date_of_creating_team}</td>

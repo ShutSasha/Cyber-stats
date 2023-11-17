@@ -7,5 +7,6 @@ router.get('/', teamController.getAll)
 router.get('/:id', teamController.getOne)
 router.delete('/teamDel/:id', teamController.delete)
 router.put('/teamEdit/:id', teamController.update)
+router.put('/teamErrorImg/:id', teamController.updateImgError)
 
 module.exports = router

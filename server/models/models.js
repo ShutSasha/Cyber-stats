@@ -24,7 +24,6 @@ const Team = sequelize.define('team', {
 
 const Match = sequelize.define('match', {
 	match_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-	tournament_id: { type: DataTypes.INTEGER },
 	match_date: { type: DataTypes.DATEONLY },
 	result: { type: DataTypes.BOOLEAN },
 	match_points: { type: DataTypes.INTEGER },

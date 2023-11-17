@@ -98,6 +98,35 @@ class TeamController {
 		}
 	}
 
+	async updateImgError (req, res, next) {
+		try {
+			const { id } = req.params
+	
+			let img = 'non-logo.svg';
+			const team = await Team.findOne({ where: { team_id: id } })
+			if (!team) {
+				return next(ApiError.badRequest('Team not founded'))
+			}
+	
+			if (req.files && req.files.img) {
+				if (team.img) {
+					fs.unlink(path.resolve(__dirname, '..', 'static', team.img), err => {
+						if (err) console.error(`Error: ${err}`);
+					});
+				}
+				let fileName = uuid.v4() + ".jpg"
+				await req.files.img.mv(path.resolve(__dirname, '..', 'static', fileName))
+				img = fileName;
+			}
+	
+			team.img = img;
+			await team.save();
+			return res.json({ message: 'Team was updated' })
+		} catch (error) {
+			next(ApiError.badRequest(error.message))
+		}
+	}
+	
 
 	async getAll (req, res) {
 		let { limit, page } = req.query

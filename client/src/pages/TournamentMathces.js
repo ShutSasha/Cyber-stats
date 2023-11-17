@@ -25,7 +25,7 @@ function TournamentMatches () {
 			.then(response => {
 				let tournamentMatches = [];
 				response.data.forEach(el => {
-					if (Number(el.tournament_id) === Number(id)) {
+					if (Number(el.tournamentTournamentId) === Number(id)) {
 						tournamentMatches.push(el)
 					}
 				})
@@ -84,8 +84,12 @@ function TournamentMatches () {
 								<td>{match.match_points}</td>
 								<td>{team1?.team_name}</td>
 								<td>{team2?.team_name}</td>
-								<td><img src={`http://localhost:5000/${team1?.img}`} alt="Team 1" style={{ width: '70px', height: '70px' }} /></td>
-								<td><img src={`http://localhost:5000/${team2?.img}`} alt="Team 2" style={{ width: '70px', height: '70px' }} /></td>
+								{
+									
+									
+								}
+								{/* <td><img src={`http://localhost:5000/${team1?.img}` ? `http://localhost:5000/${team1?.img}` : `none img`} alt="Team 1" style={{ width: '70px', height: '70px' }} /></td>
+								<td><img src={`http://localhost:5000/${team2?.img}`} alt="Team 2" style={{ width: '70px', height: '70px' }} /></td> */}
 							</tr>
 						);
 					})}

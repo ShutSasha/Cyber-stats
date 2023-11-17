@@ -26,7 +26,7 @@ function MatchModal ({ show, onClose, onCreate }) {
 			match_date: matchDate,
 			result: result,
 			match_points: matchPoints,
-			tournament_id: tournamentId,
+			tournamentTournamentId: tournamentId,
 			team1_id: team1 ? team1.team_id : null,
 			team2_id: team2 ? team2.team_id : null
 		};
