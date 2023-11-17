@@ -19,8 +19,8 @@ function QueryToDB () {
 	return (
 		<div>
 			<form onSubmit={handleSubmit}>
-				<textarea style={{ width: '500px' }} value={query} onChange={(e) => setQuery(e.target.value)} />
-				<button type="submit">Выполнить запрос</button>
+				<textarea style={{ width: '800px' }} value={query} onChange={(e) => setQuery(e.target.value)} />
+				<button type="submit">Execute the request</button>
 			</form>
 			{result && (
 				<Table striped bordered hover>

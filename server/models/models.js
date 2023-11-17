@@ -61,6 +61,13 @@ const TourDestination = sequelize.define('tour_destination', {
 	tour_destination_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
 })
 
+const MatchTeam = sequelize.define('match_team', {
+	match_team_id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }
+});
+
+Match.belongsToMany(Team, { through: MatchTeam, as: 'teams' });
+Team.belongsToMany(Match, { through: MatchTeam, as: 'matches' });
+
 Tournament.belongsToMany(Team, { through: TourDestination })
 Team.belongsToMany(Tournament, { through: TourDestination })
 
