@@ -30,7 +30,6 @@ function Team () {
 				if (isExist) {
 					toast.error('Cannot delete team with associated matches');
 				} else {
-					console.log('EREOROEROEORE');
 					axios.delete(`http://localhost:5000/api/team/teamDel/${id}`)
 						.then(response => {
 							setTeams(teams.filter(team => team.team_id !== id));

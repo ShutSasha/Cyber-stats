@@ -1,48 +1,52 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import Table from 'react-bootstrap/esm/Table';
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import Table from "react-bootstrap/esm/Table";
 
-function TournamentMatches () {
+function TournamentMatches() {
 	const { id } = useParams();
 	const [matches, setMatches] = useState([]);
 	const [teams, setTeams] = useState([]);
 	const [tournament, setTournament] = useState(null);
 
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/tournament')
-			.then(response => {
-				const tournament = response.data.find(tournament => Number(tournament.tournament_id) === Number(id));
+		axios
+			.get("http://localhost:5000/api/tournament")
+			.then((response) => {
+				const tournament = response.data.find(
+					(tournament) => Number(tournament.tournament_id) === Number(id)
+				);
 				setTournament(tournament);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, [id]);
 
 	useEffect(() => {
-		axios.get(`http://localhost:5000/api/match`)
-			.then(response => {
+		axios
+			.get(`http://localhost:5000/api/match`)
+			.then((response) => {
 				let tournamentMatches = [];
-				response.data.forEach(el => {
+				response.data.forEach((el) => {
 					if (Number(el.tournamentTournamentId) === Number(id)) {
-						tournamentMatches.push(el)
+						tournamentMatches.push(el);
 					}
-				})
+				});
 				setMatches(tournamentMatches);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, [id]);
 
-
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/team')
-			.then(response => {
+		axios
+			.get("http://localhost:5000/api/team")
+			.then((response) => {
 				setTeams(response.data.rows);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, []);
@@ -73,32 +77,51 @@ function TournamentMatches () {
 					</tr>
 				</thead>
 				<tbody>
-					{matches && teams && matches.map(match => {
-						const team1 = teams.find(team => team.team_id === match.team1_id);
-						const team2 = teams.find(team => team.team_id === match.team2_id);
+					{matches &&
+						teams &&
+						matches.map((match) => {
+							const team1 = teams.find(
+								(team) => team.team_id === match.team1_id
+							);
+							const team2 = teams.find(
+								(team) => team.team_id === match.team2_id
+							);
 
-						return (
-							<tr key={match.match_id}>
-								<td>{match.match_date}</td>
-								<td>{match.result ? 'Team 1 Wins' : 'Team 2 Wins'}</td>
-								<td>{match.match_points}</td>
-								<td>{team1?.team_name}</td>
-								<td>{team2?.team_name}</td>
-								{
-									
-									
-								}
-								{/* <td><img src={`http://localhost:5000/${team1?.img}` ? `http://localhost:5000/${team1?.img}` : `none img`} alt="Team 1" style={{ width: '70px', height: '70px' }} /></td>
-								<td><img src={`http://localhost:5000/${team2?.img}`} alt="Team 2" style={{ width: '70px', height: '70px' }} /></td> */}
-							</tr>
-						);
-					})}
-
+							return (
+								<tr key={match.match_id}>
+									<td>{match.match_date}</td>
+									<td>
+										{match.result ? "Team 1 Wins" : "Team 2 Wins"}
+									</td>
+									<td>{match.match_points}</td>
+									<td>{team1?.team_name}</td>
+									<td>{team2?.team_name}</td>
+									{}
+									<td>
+										<img
+											src={
+												`http://localhost:5000/${team1?.img}`
+													? `http://localhost:5000/${team1?.img}`
+													: `none img`
+											}
+											alt="Team 1"
+											style={{ width: "70px", height: "70px" }}
+										/>
+									</td>
+									<td>
+										<img
+											src={`http://localhost:5000/${team2?.img}`}
+											alt="Team 2"
+											style={{ width: "70px", height: "70px" }}
+										/>
+									</td>
+								</tr>
+							);
+						})}
 				</tbody>
 			</Table>
-
 		</div>
-	)
+	);
 }
 
 export default TournamentMatches;

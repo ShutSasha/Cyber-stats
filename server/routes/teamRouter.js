@@ -1,12 +1,12 @@
-const Router = require('express')
-const router = new Router()
-const teamController = require('../controllers/teamController')
+const Router = require("express");
+const router = new Router();
+const teamController = require("../controllers/teamController");
 
-router.post('/', teamController.create)
-router.get('/', teamController.getAll)
-router.get('/:id', teamController.getOne)
-router.delete('/teamDel/:id', teamController.delete)
-router.put('/teamEdit/:id', teamController.update)
-router.put('/teamErrorImg/:id', teamController.updateImgError)
+router.post("/", teamController.create);
+router.get("/", teamController.getAll);
+router.get("/:id", teamController.getOne);
+router.delete("/teamDel/:id", teamController.delete);
+router.put("/teamEdit/:id", teamController.update);
+router.put("/teamErrorImg/:id", teamController.updateImgError);
 
-module.exports = router
+module.exports = router;
