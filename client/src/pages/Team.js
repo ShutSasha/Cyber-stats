@@ -5,6 +5,18 @@ import TeamModal from "../components/TeamModal";
 import EditTeamModal from "../components/EditTeamModal";
 import Button from "react-bootstrap/Button";
 import { toast } from "react-toastify";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+// import { jsPDF } from "jspdf";
+// import "jspdf-autotable";
+
+// var fontName = "Arial";
+// var fontStyle = "normal";
+// var font = "..."; // Base64 font string
+
+// jsPDF.addFileToVFS("Arial.ttf", font);
+// jsPDF.addFont("Arial.ttf", fontName, fontStyle);
 
 function Team() {
 	const [teams, setTeams] = useState([]);
@@ -53,6 +65,53 @@ function Team() {
 			direction = "descending";
 		}
 		setSortConfig({ key, direction });
+	};
+
+	// const generatePDF = (teams) => {
+	// 	const doc = new jsPDF();
+	// 	doc.addFont(font, fontName, fontStyle); // Add the font
+	// 	const tableRows = [];
+
+	// 	teams.forEach((team) => {
+	// 		const teamData = {
+	// 			"Team Name": team.team_name,
+	// 			"Global Rating": team.global_rating,
+	// 			Points: team.team_points,
+	// 		};
+	// 		tableRows.push(teamData);
+	// 	});
+
+	// 	doc.autoTable({
+	// 		columns: [
+	// 			{ header: "Team Name", dataKey: "Team Name" },
+	// 			{ header: "Global Rating", dataKey: "Global Rating" },
+	// 			{ header: "Points", dataKey: "Points" },
+	// 		],
+	// 		body: tableRows,
+	// 		startY: 20,
+	// 	});
+	// 	doc.save(`report_${Date().split(" ").join("_")}.pdf`);
+	// };
+
+	const generatePDF = (teams) => {
+		const teamData = teams.map((team) => [
+			team.team_name,
+			team.global_rating,
+			team.team_points,
+		]);
+
+		var docDefinition = {
+			content: [
+				{
+					table: {
+						headerRows: 1,
+						body: [["Team Name", "Global Rating", "Points"], ...teamData],
+					},
+				},
+			],
+		};
+
+		pdfMake.createPdf(docDefinition).open();
 	};
 
 	const deleteTeam = (id) => {
@@ -148,6 +207,10 @@ function Team() {
 				value={searchTerm}
 				onChange={handleSearchChange}
 			/>
+			<div>
+				<h5>Згенеруй звіт</h5>
+				<Button onClick={() => generatePDF(teams)}>Generate Report</Button>
+			</div>
 			<h1>Teams</h1>
 			<Table striped bordered hover>
 				<thead>

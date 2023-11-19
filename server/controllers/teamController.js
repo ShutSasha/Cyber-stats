@@ -90,8 +90,7 @@ class TeamController {
 				global_rating,
 				team_points,
 			} = req.body;
-			console.log(15321);
-			console.log(req.files);
+			let nonImg = "non-img/non-logo.svg";
 			let img = req.files ? req.files.img.name : null;
 			const team = await Team.findOne({ where: { team_id: id } });
 			if (!team) {
@@ -104,8 +103,17 @@ class TeamController {
 			team.global_rating = global_rating;
 			team.team_points = team_points;
 
+			// if (img) {
+			// 	if (team.img) {
+			// 		fs.unlinkSync(path.resolve(__dirname, "..", "static", team.img));
+			// 	}
+			// 	let fileName = uuid.v4() + ".jpg";
+			// 	req.files.img.mv(path.resolve(__dirname, "..", "static", fileName));
+			// 	team.img = fileName;
+			// }
+
 			if (img) {
-				if (team.img) {
+				if (team.img && team.img !== nonImg) {
 					fs.unlinkSync(path.resolve(__dirname, "..", "static", team.img));
 				}
 				let fileName = uuid.v4() + ".jpg";
