@@ -8,32 +8,25 @@ function MatchModal({ show, onClose, onCreate }) {
 	const [result, setResult] = useState(false);
 	const [matchPoints, setMatchPoints] = useState(0);
 	const [teams, setTeams] = useState([]);
-	const [team1Name, setTeam1Name] = useState("");
-	const [team1Coach, setTeam1Coach] = useState("");
-	const [team2Name, setTeam2Name] = useState("");
-	const [team2Coach, setTeam2Coach] = useState("");
+	// const [team1Name, setTeam1Name] = useState("");
+	// const [team2Name, setTeam2Name] = useState("");
 	const [tournamentId, setTournamentId] = useState("");
 	const [tournaments, setTournaments] = useState([]);
+	const [selectedTournament, setSelectedTournament] = useState(null);
+	const [tournamentTeams, setTournamentTeams] = useState([]);
+	const [team1Id, setTeam1Id] = useState(null);
+	const [team2Id, setTeam2Id] = useState(null);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
-
-		const team1 = teams.find(
-			(team) =>
-				team.team_name === team1Name && team.coach_team === team1Coach
-		);
-		const team2 = teams.find(
-			(team) =>
-				team.team_name === team2Name && team.coach_team === team2Coach
-		);
 
 		const matchData = {
 			match_date: matchDate,
 			result: result,
 			match_points: matchPoints,
 			tournamentTournamentId: tournamentId,
-			team1_id: team1 ? team1.team_id : null,
-			team2_id: team2 ? team2.team_id : null,
+			team1_id: team1Id,
+			team2_id: team2Id,
 		};
 
 		onCreate(matchData);
@@ -61,6 +54,31 @@ function MatchModal({ show, onClose, onCreate }) {
 			});
 	}, []);
 
+	useEffect(() => {
+		if (selectedTournament) {
+			axios
+				.get(`http://localhost:5000/api/tour-destinations`)
+				.then((response) => {
+					const tourDestinations = response.data;
+					const tournamentTeams = teams.filter((team) =>
+						tourDestinations.some(
+							(tourDestination) =>
+								Number(tourDestination.teamTeamId) ===
+									Number(team.team_id) &&
+								Number(tourDestination.tournamentTournamentId) ===
+									Number(selectedTournament.tournament_id)
+						)
+					);
+					console.log(123);
+					setTournamentTeams(tournamentTeams);
+				})
+				.catch((error) => {
+					console.error(`Error: ${error}`);
+				});
+		}
+	}, [selectedTournament, teams]);
+
+	console.log(selectedTournament);
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
@@ -75,7 +93,16 @@ function MatchModal({ show, onClose, onCreate }) {
 						Tournament:
 						<select
 							value={tournamentId}
-							onChange={(e) => setTournamentId(e.target.value)}
+							onChange={(e) => {
+								setTournamentId(e.target.value);
+								setSelectedTournament(
+									tournaments.find(
+										(tournament) =>
+											Number(tournament.tournament_id) ===
+											Number(e.target.value)
+									)
+								);
+							}}
 						>
 							<option value="">Select a tournament...</option>
 							{tournaments.map((tournament, index) => (
@@ -111,62 +138,40 @@ function MatchModal({ show, onClose, onCreate }) {
 							onChange={(e) => setMatchPoints(e.target.value)}
 						/>
 					</label>
-
-					<label>
-						Coach of team 1:
-						<select
-							value={team1Coach}
-							onChange={(e) => {
-								console.log(e.target.value);
-								setTeam1Coach(e.target.value);
-								const selectedTeam = teams.find(
-									(team) => team.coach_team === e.target.value
-								);
-								setTeam1Name(
-									selectedTeam ? selectedTeam.team_name : ""
-								);
-							}}
-						>
-							<option value="">Выберите тренера...</option>
-							{teams.map((team, index) => (
-								<option key={index} value={team.coach_team}>
-									{team.coach_team}
-								</option>
-							))}
-						</select>
-					</label>
-					<label>
-						Name of team 1:
-						<input type="text" value={team1Name} readOnly />
-					</label>
-
-					<label>
-						Coach of team 2:
-						<select
-							value={team2Coach}
-							onChange={(e) => {
-								console.log(e.target.value);
-								setTeam2Coach(e.target.value);
-								const selectedTeam = teams.find(
-									(team) => team.coach_team === e.target.value
-								);
-								setTeam2Name(
-									selectedTeam ? selectedTeam.team_name : ""
-								);
-							}}
-						>
-							<option value="">Выберите тренера...</option>
-							{teams.map((team, index) => (
-								<option key={index} value={team.coach_team}>
-									{team.coach_team}
-								</option>
-							))}
-						</select>
-					</label>
-					<label>
-						Name of team 2:
-						<input type="text" value={team2Name} readOnly />
-					</label>
+					{selectedTournament && (
+						<>
+							<label>
+								Team 1:
+								<select
+									value={team1Id}
+									onChange={(e) => setTeam1Id(e.target.value)}
+									disabled={!tournamentTeams.length}
+								>
+									<option value="">Select a team...</option>
+									{tournamentTeams.map((team, index) => (
+										<option key={index} value={team.team_id}>
+											{team.team_name}
+										</option>
+									))}
+								</select>
+							</label>
+							<label>
+								Team 2:
+								<select
+									value={team2Id}
+									onChange={(e) => setTeam2Id(e.target.value)}
+									disabled={!tournamentTeams.length}
+								>
+									<option value="">Select a team...</option>
+									{tournamentTeams.map((team, index) => (
+										<option key={index} value={team.team_id}>
+											{team.team_name}
+										</option>
+									))}
+								</select>
+							</label>
+						</>
+					)}
 					<input type="submit" value="Create match" />
 				</form>
 			</Modal.Body>

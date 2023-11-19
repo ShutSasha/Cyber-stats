@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react'
-import Table from 'react-bootstrap/Table';
-import axios from 'axios';
-import Button from 'react-bootstrap/Button';
-import EditTourDestination from '../components/EditTourDestination';
-import TourDestinationModal from '../components/TourDestinationModal';
+import React, { useEffect, useState } from "react";
+import Table from "react-bootstrap/Table";
+import axios from "axios";
+import Button from "react-bootstrap/Button";
+import EditTourDestination from "../components/EditTourDestination";
+import TourDestinationModal from "../components/TourDestinationModal";
+import { toast } from "react-toastify";
 
-function TourDestination() {
+function TourDestination({ pageTournament }) {
 	const [tourDestinations, setTourDestinations] = useState([]);
 	const [teams, setTeams] = useState([]);
 	const [tournaments, setTournaments] = useState([]);
@@ -19,73 +20,106 @@ function TourDestination() {
 	const closeModal = () => setShowModal(false);
 
 	const createTourDestination = (tourDestinationData) => {
-		axios.post('http://localhost:5000/api/tour-destinations', tourDestinationData)
-			.then(response => {
+		const existingTourDestination = tourDestinations.find(
+			(tourDestination) =>
+				Number(tourDestination.teamTeamId) ===
+					Number(tourDestinationData.teamTeamId) &&
+				Number(tourDestination.tournamentTournamentId) ===
+					Number(tourDestinationData.tournamentTournamentId)
+		);
+		if (existingTourDestination) {
+			toast.error("This team is already participating in the tournament.");
+			return;
+		}
+
+		axios
+			.post(
+				"http://localhost:5000/api/tour-destinations",
+				tourDestinationData
+			)
+			.then((response) => {
 				setTourDestinations([...tourDestinations, response.data]);
+				closeModal();
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	};
 
 	const deleteTourDestination = (id) => {
-
-		axios.delete(`http://localhost:5000/api/tour-destinations/${id}`)
-			.then(response => {
-				setTourDestinations(tourDestinations.filter(tourDestination => tourDestination.tour_destination_id !== id));
+		axios
+			.delete(`http://localhost:5000/api/tour-destinations/${id}`)
+			.then((response) => {
+				setTourDestinations(
+					tourDestinations.filter(
+						(tourDestination) =>
+							tourDestination.tour_destination_id !== id
+					)
+				);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	};
 
 	const updateTourDestination = (id, updatedTourDestinationData) => {
-		axios.put(`http://localhost:5000/api/tour-destinations/${id}`, updatedTourDestinationData)
-			.then(response => {
-				setTourDestinations(tourDestinations.map(tourDestination =>
-					tourDestination.tour_destination_id === id ? { ...tourDestination, ...updatedTourDestinationData } : tourDestination
-				));
-	
-				axios.get('http://localhost:5000/api/tour-destinations')
-					.then(response => {
+		axios
+			.put(
+				`http://localhost:5000/api/tour-destinations/${id}`,
+				updatedTourDestinationData
+			)
+			.then((response) => {
+				setTourDestinations(
+					tourDestinations.map((tourDestination) =>
+						tourDestination.tour_destination_id === id
+							? { ...tourDestination, ...updatedTourDestinationData }
+							: tourDestination
+					)
+				);
+
+				axios
+					.get("http://localhost:5000/api/tour-destinations")
+					.then((response) => {
 						setTourDestinations(response.data);
 					})
-					.catch(error => {
+					.catch((error) => {
 						console.error(`Error: ${error}`);
 					});
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	};
-	
 
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/tour-destinations')
-			.then(response => {
+		axios
+			.get("http://localhost:5000/api/tour-destinations")
+			.then((response) => {
 				setTourDestinations(response.data);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, []);
 
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/team')
-			.then(response => {
+		axios
+			.get("http://localhost:5000/api/team")
+			.then((response) => {
 				setTeams(response.data.rows);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, []);
 
 	useEffect(() => {
-		axios.get('http://localhost:5000/api/tournament')
-			.then(response => {
+		axios
+			.get("http://localhost:5000/api/tournament")
+			.then((response) => {
 				setTournaments(response.data);
 			})
-			.catch(error => {
+			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
 	}, []);
@@ -105,16 +139,54 @@ function TourDestination() {
 				</thead>
 				<tbody>
 					{tourDestinations.map((tourDestination, index) => {
-						const team = teams.find(team => team.team_id === tourDestination.teamTeamId);
-						const tournament = tournaments.find(tournament => tournament.tournament_id === tourDestination.tournamentTournamentId);
-						
+						const team = teams.find(
+							(team) => team.team_id === tourDestination.teamTeamId
+						);
+						const tournament = tournaments.find(
+							(tournament) =>
+								tournament.tournament_id ===
+								tourDestination.tournamentTournamentId
+						);
+						if (
+							pageTournament &&
+							tournament &&
+							Number(tournament.tournament_id) !== Number(pageTournament)
+						) {
+							return null;
+						}
+
 						return (
 							<tr key={index}>
-								<td>{team ? team.team_name : 'N/A'}</td>
-								<td>{tournament ? tournament.tournament_name : 'N/A'}</td>
-								<td style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
-								<Button variant="primary" onClick={() => { setEditingTourDestination(tourDestination); openEditModal(); }}>Edit</Button>
-									<Button variant='danger' onClick={() => deleteTourDestination(tourDestination.tour_destination_id)}>Delete</Button>
+								<td>{team ? team.team_name : "N/A"}</td>
+								<td>
+									{tournament ? tournament.tournament_name : "N/A"}
+								</td>
+								<td
+									style={{
+										display: "flex",
+										justifyContent: "space-around",
+										alignItems: "center",
+									}}
+								>
+									<Button
+										variant="primary"
+										onClick={() => {
+											setEditingTourDestination(tourDestination);
+											openEditModal();
+										}}
+									>
+										Edit
+									</Button>
+									<Button
+										variant="danger"
+										onClick={() =>
+											deleteTourDestination(
+												tourDestination.tour_destination_id
+											)
+										}
+									>
+										Delete
+									</Button>
 								</td>
 							</tr>
 						);
@@ -123,21 +195,26 @@ function TourDestination() {
 			</Table>
 
 			<TourDestinationModal
-			show={showModal}
-			onClose={closeModal}
-			onCreate={createTourDestination}
+				show={showModal}
+				onClose={closeModal}
+				onCreate={createTourDestination}
+				pageTournament={pageTournament}
 			/>
-
-
 
 			<EditTourDestination
 				show={showEditModal}
 				onClose={closeEditModal}
-				onUpdate={(updatedTourDestinationData) => updateTourDestination(editingTourDestination.tour_destination_id, updatedTourDestinationData)}
+				onUpdate={(updatedTourDestinationData) =>
+					updateTourDestination(
+						editingTourDestination.tour_destination_id,
+						updatedTourDestinationData
+					)
+				}
 				editingTourDestination={editingTourDestination}
+				pageTournament={pageTournament}
 			/>
 		</div>
-	)
+	);
 }
 
-export default TourDestination
+export default TourDestination;

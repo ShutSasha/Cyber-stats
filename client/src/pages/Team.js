@@ -134,7 +134,9 @@ function Team() {
 						})
 						.catch((error) => {
 							console.error(`Error: ${error}`);
-							toast.error("Error deleting team");
+							toast.error(
+								"Не можна видалити команду, яка повязана з іншими таблицями"
+							);
 						});
 				}
 			})

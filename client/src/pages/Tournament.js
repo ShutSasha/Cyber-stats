@@ -5,6 +5,7 @@ import TournamentModal from "../components/TournamentModal";
 import EditTournamentModal from "../components/EditTournamentModal";
 import Button from "react-bootstrap/esm/Button";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function Tournament() {
 	const [tournaments, setTournaments] = useState([]);
@@ -85,12 +86,11 @@ function Tournament() {
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);
-				console.log(error.response);
 				if (
 					(error.response && error.response.status === 400) ||
 					(error.response && error.response.status === 404)
 				) {
-					alert(
+					toast.error(
 						"Можливо ви намагаєтесь видалити турнір, який має зв'язані записи."
 					);
 				}

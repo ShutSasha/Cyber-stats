@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Table from "react-bootstrap/esm/Table";
+import TourDestination from "./TourDestination";
 
 function TournamentMatches() {
 	const { id } = useParams();
 	const [matches, setMatches] = useState([]);
 	const [teams, setTeams] = useState([]);
 	const [tournament, setTournament] = useState(null);
-
 	useEffect(() => {
 		axios
 			.get("http://localhost:5000/api/tournament")
@@ -53,17 +53,22 @@ function TournamentMatches() {
 
 	return (
 		<div>
+			<TourDestination pageTournament={id}></TourDestination>
 			{tournament && (
 				<div>
-					<h1>{tournament.tournament_name}</h1>
-					<p>Start Date: {tournament.tournamen_date_start}</p>
-					<p>End Date: {tournament.tournamen_date_end}</p>
-					<p>Place: {tournament.tournament_place}</p>
-					<p>Prize Fund: {tournament.prize_fund}$</p>
-					<p>Points: {tournament.tournament_points}</p>
+					<div>
+						<h1>{tournament.tournament_name}</h1>
+						<p>Start Date: {tournament.tournamen_date_start}</p>
+						<p>End Date: {tournament.tournamen_date_end}</p>
+						<p>Place: {tournament.tournament_place}</p>
+						<p>Prize Fund: {tournament.prize_fund}$</p>
+						<p>Points: {tournament.tournament_points}</p>
+					</div>
+					<div>
+						<h1>Matches for Tournament {tournament.tournament_name}</h1>
+					</div>
 				</div>
 			)}
-			<h1>Matches for Tournament {id}</h1>
 			<Table striped bordered hover>
 				<thead>
 					<tr>
