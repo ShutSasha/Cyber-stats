@@ -11,11 +11,49 @@ function Player() {
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [editingPlayer, setEditingPlayer] = useState(null);
 	const [teams, setTeams] = useState([]);
+	const [searchTerm, setSearchTerm] = useState("");
+	const [sortConfig, setSortConfig] = useState(null);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
 	const openEditModal = () => setShowEditModal(true);
 	const closeEditModal = () => setShowEditModal(false);
+
+	const handleSearchChange = (event) => {
+		setSearchTerm(event.target.value);
+	};
+
+	const filteredPlayers = players.filter((player) =>
+		player.nickname.toLowerCase().includes(searchTerm.toLowerCase())
+	);
+
+	const sortedPlayers = React.useMemo(() => {
+		let sortableTeams = [...filteredPlayers];
+		if (sortConfig !== null) {
+			sortableTeams.sort((a, b) => {
+				if (a[sortConfig.key] < b[sortConfig.key]) {
+					return sortConfig.direction === "ascending" ? -1 : 1;
+				}
+				if (a[sortConfig.key] > b[sortConfig.key]) {
+					return sortConfig.direction === "ascending" ? 1 : -1;
+				}
+				return 0;
+			});
+		}
+		return sortableTeams;
+	}, [filteredPlayers, sortConfig]);
+
+	const requestSort = (key) => {
+		let direction = "ascending";
+		if (
+			sortConfig &&
+			sortConfig.key === key &&
+			sortConfig.direction === "ascending"
+		) {
+			direction = "descending";
+		}
+		setSortConfig({ key, direction });
+	};
 
 	const createPlayer = (playerData) => {
 		axios
@@ -86,6 +124,12 @@ function Player() {
 
 	return (
 		<div>
+			<input
+				type="text"
+				placeholder="Search by nickname"
+				value={searchTerm}
+				onChange={handleSearchChange}
+			/>
 			<h1>Players</h1>
 			<Table striped bordered hover>
 				<thead>
@@ -94,15 +138,93 @@ function Player() {
 						<th>Surname</th>
 						<th>Nickname</th>
 						<th>Role</th>
-						<th>Global rating</th>
-						<th>Role rating</th>
-						<th>Player points</th>
+						<th onClick={() => requestSort("global_rating")}>
+							Global Rating
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "global_rating" &&
+										sortConfig.direction === "ascending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔼
+							</span>
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "global_rating" &&
+										sortConfig.direction === "descending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔽
+							</span>
+						</th>
+						<th onClick={() => requestSort("role_rating")}>
+							Role Rating
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "role_rating" &&
+										sortConfig.direction === "ascending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔼
+							</span>
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "role_rating" &&
+										sortConfig.direction === "descending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔽
+							</span>
+						</th>
+						<th onClick={() => requestSort("esports_player_points")}>
+							Player Points
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "esports_player_points" &&
+										sortConfig.direction === "ascending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔼
+							</span>
+							<span
+								style={{
+									opacity:
+										sortConfig &&
+										sortConfig.key === "esports_player_points" &&
+										sortConfig.direction === "descending"
+											? 1
+											: 0.3,
+								}}
+							>
+								🔽
+							</span>
+						</th>
 						<th>Date of birth</th>
 						<th>Team name</th>
 					</tr>
 				</thead>
 				<tbody>
-					{players.map((player) => {
+					{sortedPlayers.map((player) => {
 						const team = teams.find(
 							(team) => team.team_id === player.teamTeamId
 						);
