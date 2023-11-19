@@ -37,6 +37,29 @@ function Tournament() {
 	});
 
 	const createTournament = (tournamentData) => {
+		for (let key in tournamentData) {
+			if (!tournamentData[key]) {
+				alert(`Будь ласка, заповніть поле ${key}`);
+				return;
+			}
+		}
+
+		if (
+			new Date(tournamentData.tournamen_date_start) >
+			new Date(tournamentData.tournamen_date_end)
+		) {
+			alert("Дата початку турніру не може бути пізніше дати закінчення.");
+			return;
+		}
+
+		if (
+			tournamentData.prize_fund < 0 ||
+			tournamentData.tournament_points < 0
+		) {
+			alert("Очки та призовий фонд не можуть бути меншими за 0.");
+			return;
+		}
+
 		axios
 			.post("http://localhost:5000/api/tournament", tournamentData)
 			.then((response) => {
@@ -62,10 +85,42 @@ function Tournament() {
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);
+				console.log(error.response);
+				if (
+					(error.response && error.response.status === 400) ||
+					(error.response && error.response.status === 404)
+				) {
+					alert(
+						"Можливо ви намагаєтесь видалити турнір, який має зв'язані записи."
+					);
+				}
 			});
 	};
 
 	const updateTournament = (id, updatedTournamentData) => {
+		for (let key in updatedTournamentData) {
+			if (!updatedTournamentData[key]) {
+				alert(`Будь ласка, заповніть поле ${key}`);
+				return;
+			}
+		}
+
+		if (
+			new Date(updatedTournamentData.tournamen_date_start) >
+			new Date(updatedTournamentData.tournamen_date_end)
+		) {
+			alert("Дата початку турніру не може бути пізніше дати закінчення.");
+			return;
+		}
+
+		if (
+			updatedTournamentData.prize_fund < 0 ||
+			updatedTournamentData.tournament_points < 0
+		) {
+			alert("Очки та призовий фонд не можуть бути меншими за 0.");
+			return;
+		}
+
 		axios
 			.put(
 				`http://localhost:5000/api/tournament/tournamentEdit/${id}`,

@@ -56,10 +56,18 @@ function Player() {
 	};
 
 	const createPlayer = (playerData) => {
+		const teamPlayers = players.filter(
+			(player) => Number(player.teamTeamId) === Number(playerData.teamTeamId)
+		);
+		console.log(teamPlayers);
+		if (teamPlayers.length >= 5) {
+			alert("Ви не можете додати більше пяти гравців в одну команду.");
+			return;
+		}
+
 		axios
 			.post("http://localhost:5000/api/player", playerData)
 			.then((response) => {
-				console.log(response.data);
 				setPlayers([...players, response.data]);
 				closeModal();
 			})
@@ -83,6 +91,18 @@ function Player() {
 	};
 
 	const updatePlayer = (id, updatedPlayerData) => {
+		const teamPlayers = players.filter(
+			(player) =>
+				Number(player.teamTeamId) === Number(updatedPlayerData.teamTeamId)
+		);
+		if (
+			teamPlayers.length >= 5 &&
+			!teamPlayers.some((player) => player.esports_player_id === id)
+		) {
+			alert("Ви не можете додати більше пяти гравців в одну команду.");
+			return;
+		}
+
 		axios
 			.put(`http://localhost:5000/api/player/${id}`, updatedPlayerData)
 			.then((response) => {
