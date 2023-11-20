@@ -101,24 +101,28 @@ function TournamentMatches() {
 									<td>{match.match_points}</td>
 									<td>{team1?.team_name}</td>
 									<td>{team2?.team_name}</td>
-									{}
+
 									<td>
-										<img
-											src={
-												`http://localhost:5000/${team1?.img}`
-													? `http://localhost:5000/${team1?.img}`
-													: `none img`
-											}
-											alt="Team 1"
-											style={{ width: "70px", height: "70px" }}
-										/>
+										{team1?.img && (
+											<img
+												src={
+													`http://localhost:5000/${team1?.img}`
+														? `http://localhost:5000/${team1?.img}`
+														: `none img`
+												}
+												alt="Team 1"
+												style={{ width: "70px", height: "70px" }}
+											/>
+										)}
 									</td>
 									<td>
-										<img
-											src={`http://localhost:5000/${team2?.img}`}
-											alt="Team 2"
-											style={{ width: "70px", height: "70px" }}
-										/>
+										{team2?.img && (
+											<img
+												src={`http://localhost:5000/${team2?.img}`}
+												alt="Team 2"
+												style={{ width: "70px", height: "70px" }}
+											/>
+										)}
 									</td>
 								</tr>
 							);

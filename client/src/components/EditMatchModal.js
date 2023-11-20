@@ -3,13 +3,26 @@ import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
 
-function EditMatchModal({ show, onClose, onUpdate, editingMatch }) {
+function EditMatchModal({ show, onClose, onUpdate, editingMatch, match }) {
 	const [matchDate, setMatchDate] = useState("");
 	const [result, setResult] = useState(false);
 	const [matchPoints, setMatchPoints] = useState(0);
 	const [team1Id, setTeam1Id] = useState(0);
 	const [team2Id, setTeam2Id] = useState(0);
 	const [teams, setTeams] = useState([]);
+	const [tournaments, setTournaments] = useState([]);
+	const [tournamentTeams, setTournamentTeams] = useState([]);
+
+	useEffect(() => {
+		axios
+			.get(`http://localhost:5000/api/tournament`)
+			.then((response) => {
+				setTournaments(response.data);
+			})
+			.catch((error) => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
 
 	useEffect(() => {
 		if (editingMatch) {
@@ -62,6 +75,39 @@ function EditMatchModal({ show, onClose, onUpdate, editingMatch }) {
 			});
 	}, []);
 
+	const tournament =
+		match &&
+		tournaments.find(
+			(tournament) =>
+				Number(tournament.tournament_id) ===
+				Number(match.tournamentTournamentId)
+		);
+
+	useEffect(() => {
+		axios
+			.get("http://localhost:5000/api/tour-destinations")
+			.then((response) => {
+				const tourDestinations = response.data;
+				console.log(tournament);
+				if (tournament) {
+					const tournamentTeams = tourDestinations.filter(
+						(tourDestination) =>
+							Number(tourDestination.tournamentTournamentId) ===
+							Number(tournament.tournament_id)
+					);
+					console.log(tournamentTeams);
+					setTournamentTeams(tournamentTeams);
+				}
+			})
+			.catch((error) => {
+				console.error(`Error: ${error}`);
+			});
+	}, [tournament]);
+
+	if (!tournament) {
+		return null;
+	}
+
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
@@ -99,20 +145,40 @@ function EditMatchModal({ show, onClose, onUpdate, editingMatch }) {
 						/>
 					</label>
 					<label>
-						ID of Team 1:
-						<input
-							type="number"
+						Team 1:
+						<select
 							value={team1Id}
 							onChange={(e) => setTeam1Id(e.target.value)}
-						/>
+						>
+							{tournamentTeams.map((tourDestination, index) => {
+								const team = teams.find(
+									(team) => team.team_id === tourDestination.teamTeamId
+								);
+								return (
+									<option key={index} value={team.team_id}>
+										{team.team_name}
+									</option>
+								);
+							})}
+						</select>
 					</label>
 					<label>
-						ID of Team 2:
-						<input
-							type="number"
+						Team 2:
+						<select
 							value={team2Id}
 							onChange={(e) => setTeam2Id(e.target.value)}
-						/>
+						>
+							{tournamentTeams.map((tourDestination, index) => {
+								const team = teams.find(
+									(team) => team.team_id === tourDestination.teamTeamId
+								);
+								return (
+									<option key={index} value={team.team_id}>
+										{team.team_name}
+									</option>
+								);
+							})}
+						</select>
 					</label>
 					<input type="submit" value="Update match" />
 				</form>

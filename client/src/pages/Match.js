@@ -4,6 +4,7 @@ import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import MatchModal from "../components/MatchModal";
 import EditMatchModal from "../components/EditMatchModal";
+import { toast } from "react-toastify";
 
 function Match() {
 	const [matches, setMatches] = useState([]);
@@ -17,7 +18,6 @@ function Match() {
 	const closeModal = () => setShowModal(false);
 	const openEditModal = () => setShowEditModal(true);
 	const closeEditModal = () => setShowEditModal(false);
-
 	const [tournaments, setTournaments] = useState({});
 
 	useEffect(() => {
@@ -53,6 +53,7 @@ function Match() {
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);
+				toast.error("Не всі поля заповнені");
 			});
 	};
 
@@ -62,6 +63,30 @@ function Match() {
 			.then((response) => {
 				console.log(response.data);
 				setMatches(matches.filter((match) => match.match_id !== id));
+				axios
+					.get(`http://localhost:5000/api/matchTeam`)
+					.then((response) => {
+						const matchTeams = response.data;
+						const relatedMatchTeams = matchTeams.filter(
+							(matchTeam) => matchTeam.matchMatchId === id
+						);
+
+						relatedMatchTeams.forEach((matchTeam) => {
+							axios
+								.delete(
+									`http://localhost:5000/api/matchTeam/${matchTeam.match_team_id}`
+								)
+								.then((response) => {
+									console.log(response.data);
+								})
+								.catch((error) => {
+									console.error(`Error: ${error}`);
+								});
+						});
+					})
+					.catch((error) => {
+						console.error(`Error: ${error}`);
+					});
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);
@@ -75,6 +100,7 @@ function Match() {
 				let result = teamMatches.filter((teamMatch) =>
 					matches.some((match) => id === teamMatch.matchMatchId)
 				);
+				console.log(result);
 				axios
 					.put(
 						`http://localhost:5000/api/matchTeam/${result[0].match_team_id}`,
@@ -237,6 +263,7 @@ function Match() {
 					updateMatch(editingMatch.match_id, updatedMatchData)
 				}
 				editingMatch={editingMatch}
+				match={editingMatch}
 			/>
 		</div>
 	);

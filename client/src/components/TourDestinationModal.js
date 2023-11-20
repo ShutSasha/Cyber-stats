@@ -73,7 +73,7 @@ function TourDestinationModal({ show, onClose, onCreate, pageTournament }) {
 						return;
 					}
 
-					if (!tournamentTournamentId) {
+					if (!tournamentTournamentId && !pageTournament) {
 						toast.error("You need to select tournament");
 						return;
 					}

@@ -10,12 +10,12 @@ function MatchModal({ show, onClose, onCreate }) {
 	const [teams, setTeams] = useState([]);
 	// const [team1Name, setTeam1Name] = useState("");
 	// const [team2Name, setTeam2Name] = useState("");
-	const [tournamentId, setTournamentId] = useState("");
+	const [tournamentId, setTournamentId] = useState(undefined);
 	const [tournaments, setTournaments] = useState([]);
 	const [selectedTournament, setSelectedTournament] = useState(null);
 	const [tournamentTeams, setTournamentTeams] = useState([]);
-	const [team1Id, setTeam1Id] = useState(null);
-	const [team2Id, setTeam2Id] = useState(null);
+	const [team1Id, setTeam1Id] = useState(0);
+	const [team2Id, setTeam2Id] = useState(0);
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
@@ -69,7 +69,6 @@ function MatchModal({ show, onClose, onCreate }) {
 									Number(selectedTournament.tournament_id)
 						)
 					);
-					console.log(123);
 					setTournamentTeams(tournamentTeams);
 				})
 				.catch((error) => {
@@ -78,7 +77,6 @@ function MatchModal({ show, onClose, onCreate }) {
 		}
 	}, [selectedTournament, teams]);
 
-	console.log(selectedTournament);
 	return (
 		<Modal show={show} onHide={onClose}>
 			<Modal.Header closeButton>
@@ -94,14 +92,19 @@ function MatchModal({ show, onClose, onCreate }) {
 						<select
 							value={tournamentId}
 							onChange={(e) => {
-								setTournamentId(e.target.value);
-								setSelectedTournament(
-									tournaments.find(
-										(tournament) =>
-											Number(tournament.tournament_id) ===
-											Number(e.target.value)
-									)
-								);
+								const value = e.target.value;
+								if (value !== null && value !== undefined) {
+									setTournamentId(value);
+									setSelectedTournament(
+										tournaments.find(
+											(tournament) =>
+												Number(tournament.tournament_id) ===
+												Number(value)
+										)
+									);
+								} else {
+									console.log("The value is null or undefined");
+								}
 							}}
 						>
 							<option value="">Select a tournament...</option>
@@ -138,40 +141,53 @@ function MatchModal({ show, onClose, onCreate }) {
 							onChange={(e) => setMatchPoints(e.target.value)}
 						/>
 					</label>
-					{selectedTournament && (
-						<>
-							<label>
-								Team 1:
-								<select
-									value={team1Id}
-									onChange={(e) => setTeam1Id(e.target.value)}
-									disabled={!tournamentTeams.length}
-								>
-									<option value="">Select a team...</option>
-									{tournamentTeams.map((team, index) => (
-										<option key={index} value={team.team_id}>
-											{team.team_name}
-										</option>
-									))}
-								</select>
-							</label>
-							<label>
-								Team 2:
-								<select
-									value={team2Id}
-									onChange={(e) => setTeam2Id(e.target.value)}
-									disabled={!tournamentTeams.length}
-								>
-									<option value="">Select a team...</option>
-									{tournamentTeams.map((team, index) => (
-										<option key={index} value={team.team_id}>
-											{team.team_name}
-										</option>
-									))}
-								</select>
-							</label>
-						</>
-					)}
+					<>
+						<label>
+							Team 1:
+							<select
+								value={team1Id}
+								onChange={(e) => {
+									const value = e.target.value;
+									console.log(value);
+									if (value !== null && value !== undefined) {
+										setTeam1Id(value);
+									}
+								}}
+								disabled={
+									!selectedTournament || !tournamentTeams.length
+								}
+							>
+								<option value="">Select a team...</option>
+								{tournamentTeams.map((team, index) => (
+									<option key={index} value={team.team_id}>
+										{team.team_name}
+									</option>
+								))}
+							</select>
+						</label>
+						<label>
+							Team 2:
+							<select
+								value={team2Id}
+								onChange={(e) => {
+									const value = e.target.value;
+									if (value !== null && value !== undefined) {
+										setTeam2Id(value);
+									}
+								}}
+								disabled={
+									!selectedTournament || !tournamentTeams.length
+								}
+							>
+								<option value="">Select a team...</option>
+								{tournamentTeams.map((team, index) => (
+									<option key={index} value={team.team_id}>
+										{team.team_name}
+									</option>
+								))}
+							</select>
+						</label>
+					</>
 					<input type="submit" value="Create match" />
 				</form>
 			</Modal.Body>

@@ -45,6 +45,23 @@ class teamMatchDbController {
 		}
 	}
 
+	async delete(req, res, next) {
+		try {
+			const { id } = req.params;
+			const matchTeam = await MatchTeam.findOne({
+				where: { match_team_id: id },
+			});
+			if (!matchTeam) {
+				return next(ApiError.badRequest("MatchTeam not founded"));
+			}
+
+			await matchTeam.destroy();
+			return res.json({ message: "MatchTeam was deleted" });
+		} catch (error) {
+			next(ApiError.badRequest(error.message));
+		}
+	}
+
 	async getAll(req, res, next) {
 		const teamMathces = await MatchTeam.findAll();
 		return res.json(teamMathces);
