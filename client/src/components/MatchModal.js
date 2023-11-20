@@ -2,14 +2,13 @@ import React, { useEffect, useState } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function MatchModal({ show, onClose, onCreate }) {
 	const [matchDate, setMatchDate] = useState("");
 	const [result, setResult] = useState(false);
 	const [matchPoints, setMatchPoints] = useState(0);
 	const [teams, setTeams] = useState([]);
-	// const [team1Name, setTeam1Name] = useState("");
-	// const [team2Name, setTeam2Name] = useState("");
 	const [tournamentId, setTournamentId] = useState(undefined);
 	const [tournaments, setTournaments] = useState([]);
 	const [selectedTournament, setSelectedTournament] = useState(null);
@@ -20,6 +19,20 @@ function MatchModal({ show, onClose, onCreate }) {
 	const handleSubmit = (event) => {
 		event.preventDefault();
 
+		const matchDateObj = new Date(matchDate);
+		const tournamentStart = new Date(selectedTournament.tournamen_date_start);
+		const tournamentEnd = new Date(selectedTournament.tournamen_date_end);
+		console.log(selectedTournament);
+		if (!(matchDateObj >= tournamentStart && matchDateObj <= tournamentEnd)) {
+			toast.error(
+				`Не можна створити матч поза межами дат турніру, дата проведення турніру з ${tournamentStart.toLocaleDateString()} до ${tournamentEnd.toLocaleDateString()}`
+			);
+			return null;
+		}
+		if (Number(team1Id) === Number(team2Id)) {
+			toast.error("Команда не може грати сама проти себе");
+			return null;
+		}
 		const matchData = {
 			match_date: matchDate,
 			result: result,

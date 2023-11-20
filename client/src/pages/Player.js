@@ -4,6 +4,8 @@ import Table from "react-bootstrap/Table";
 import PlayerModal from "../components/PlayerModal";
 import EditPlayerModal from "../components/EditPlayerModal";
 import Button from "react-bootstrap/esm/Button";
+import { toast } from "react-toastify";
+import Select from "react-select";
 
 function Player() {
 	const [players, setPlayers] = useState([]);
@@ -13,6 +15,7 @@ function Player() {
 	const [teams, setTeams] = useState([]);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortConfig, setSortConfig] = useState(null);
+	const [roleFilter, setRoleFilter] = useState("");
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -23,12 +26,34 @@ function Player() {
 		setSearchTerm(event.target.value);
 	};
 
-	const filteredPlayers = players.filter((player) =>
+	const roles = [
+		{ value: "Капітан", label: "Captain" },
+		{ value: "Снайпер", label: "Sniper" },
+		{ value: "Entry Fragger", label: "Entry Fragger" },
+		{ value: "Refragger", label: "Refragger" },
+		{ value: "Підтримка", label: "Support" },
+		{ value: "Lurker", label: "Lurker" },
+		{ value: "Rifler", label: "Rifler" },
+		{ value: "Star Player", label: "Star Player" },
+	];
+
+	const handleRoleFilterChange = (selectedOptions) => {
+		setRoleFilter(selectedOptions.map((option) => option.value));
+	};
+
+	const filteredPlayersBySearch = players.filter((player) =>
 		player.nickname.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 
 	const sortedPlayers = React.useMemo(() => {
-		let sortableTeams = [...filteredPlayers];
+		let sortableTeams = [...filteredPlayersBySearch];
+
+		if (roleFilter.length > 0) {
+			sortableTeams = sortableTeams.filter((player) =>
+				roleFilter.includes(player.role)
+			);
+		}
+
 		if (sortConfig !== null) {
 			sortableTeams.sort((a, b) => {
 				if (a[sortConfig.key] < b[sortConfig.key]) {
@@ -41,7 +66,7 @@ function Player() {
 			});
 		}
 		return sortableTeams;
-	}, [filteredPlayers, sortConfig]);
+	}, [filteredPlayersBySearch, sortConfig, roleFilter]);
 
 	const requestSort = (key) => {
 		let direction = "ascending";
@@ -59,9 +84,9 @@ function Player() {
 		const teamPlayers = players.filter(
 			(player) => Number(player.teamTeamId) === Number(playerData.teamTeamId)
 		);
-		console.log(teamPlayers);
+
 		if (teamPlayers.length >= 5) {
-			alert("Ви не можете додати більше пяти гравців в одну команду.");
+			toast.error("Ви не можете додати більше пяти гравців в одну команду.");
 			return;
 		}
 
@@ -80,7 +105,6 @@ function Player() {
 		axios
 			.delete(`http://localhost:5000/api/player/${id}`)
 			.then((response) => {
-				console.log(response.data);
 				setPlayers(
 					players.filter((player) => player.esports_player_id !== id)
 				);
@@ -99,7 +123,9 @@ function Player() {
 			teamPlayers.length >= 5 &&
 			!teamPlayers.some((player) => player.esports_player_id === id)
 		) {
-			alert("Ви не можете додати більше пяти гравців в одну команду.");
+			toast.error(
+				"Ви не можете зробити більше пяти гравців в одну команду."
+			);
 			return;
 		}
 
@@ -151,6 +177,7 @@ function Player() {
 				onChange={handleSearchChange}
 			/>
 			<h1>Players</h1>
+			<Select isMulti options={roles} onChange={handleRoleFilterChange} />
 			<Table striped bordered hover>
 				<thead>
 					<tr>

@@ -6,6 +6,9 @@ import EditTournamentModal from "../components/EditTournamentModal";
 import Button from "react-bootstrap/esm/Button";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import pdfMake from "pdfmake/build/pdfmake";
+import pdfFonts from "pdfmake/build/vfs_fonts";
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function Tournament() {
 	const [tournaments, setTournaments] = useState([]);
@@ -36,6 +39,67 @@ function Tournament() {
 			return true;
 		}
 	});
+
+	const generatePDF = (tournaments) => {
+		const currentDate = new Date();
+
+		const relevantTournaments = tournaments.filter((tournament) => {
+			const tournamentStartDate = new Date(tournament.tournamen_date_start);
+			const tournamentEndDate = new Date(tournament.tournamen_date_end);
+			return (
+				(tournamentStartDate <= currentDate &&
+					tournamentEndDate >= currentDate) ||
+				(tournamentStartDate >= currentDate &&
+					tournamentEndDate >= currentDate)
+			);
+		});
+
+		const tournamentData = relevantTournaments.map((tournament) => [
+			tournament.tournament_name,
+			tournament.tournamen_date_start,
+			tournament.tournamen_date_end,
+			tournament.tournament_place,
+			tournament.prize_fund,
+			tournament.tournament_points,
+		]);
+
+		let docDefinition = {
+			content: [
+				{
+					text: "Турніри, які зараз проводяться або будуть проводитись",
+					style: "header",
+				},
+				{
+					table: {
+						headerRows: 1,
+						body: [
+							[
+								{ text: "Tournament Name", alignment: "center" },
+								{ text: "Date start", alignment: "center" },
+								{ text: "Date end", alignment: "center" },
+								{ text: "Place", alignment: "center" },
+								{ text: "Prize fund", alignment: "center" },
+								{ text: "Points", alignment: "center" },
+							],
+							...tournamentData.map((row) =>
+								row.map((cell) => ({ text: cell, alignment: "center" }))
+							),
+						],
+					},
+				},
+			],
+			styles: {
+				header: {
+					fontSize: 18,
+					bold: true,
+					margin: [0, 0, 0, 10],
+					alignment: "center",
+				},
+			},
+		};
+
+		pdfMake.createPdf(docDefinition).open();
+	};
 
 	const createTournament = (tournamentData) => {
 		for (let key in tournamentData) {
@@ -155,7 +219,13 @@ function Tournament() {
 	return (
 		<div>
 			<h1>Tournaments</h1>
-
+			<h5>
+				Згенеруй звіт про турніри, які проводяться зараз або будуть
+				проводитись в майбутньому
+			</h5>
+			<Button onClick={() => generatePDF(tournaments)}>
+				Generate Report
+			</Button>
 			<div style={{ display: "flex", flexDirection: "column" }}>
 				<h5>Select prize fund</h5>
 				<label>

@@ -100,7 +100,7 @@ function Team() {
 			team.team_points,
 		]);
 
-		var docDefinition = {
+		let docDefinition = {
 			content: [
 				{
 					table: {

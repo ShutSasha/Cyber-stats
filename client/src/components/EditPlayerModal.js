@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 	const [playerName, setPlayerName] = useState("");
@@ -43,7 +44,19 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 			date_of_birth: playerBirthDate,
 			teamTeamId: Number(teamId),
 		};
-		console.log(playerData);
+
+		for (let key in playerData) {
+			if (!playerData[key]) {
+				toast.error(`Будь ласка, введіть ${key}`);
+				return;
+			}
+		}
+
+		if (playerPoints > 1000000000) {
+			toast.error("Очки гравця не можуть бути більше за 1.000.000.000");
+			return;
+		}
+
 		onUpdate(playerData);
 	};
 
@@ -98,11 +111,11 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 							value={playerRole}
 							onChange={(e) => setPlayerRole(e.target.value)}
 						>
-							<option value="Капітан">Капітан</option>
-							<option value="Снайпер">Снайпер</option>
+							<option value="Captain">Captain</option>
+							<option value="Sniper">Sniper</option>
 							<option value="Entry Fragger">Entry Fragger</option>
 							<option value="Refragger">Refragger</option>
-							<option value="Підтримка">Підтримка</option>
+							<option value="Support">Support</option>
 							<option value="Lurker">Lurker</option>
 							<option value="Rifler">Rifler</option>
 							<option value="Star Player">Star Player</option>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function EditMatchModal({ show, onClose, onUpdate, editingMatch, match }) {
 	const [matchDate, setMatchDate] = useState("");
@@ -36,6 +37,28 @@ function EditMatchModal({ show, onClose, onUpdate, editingMatch, match }) {
 
 	const handleSubmit = (event) => {
 		event.preventDefault();
+		const selectedTournament = tournaments.filter(
+			(tournament) =>
+				Number(tournament.tournament_id) ===
+				Number(match.tournamentTournamentId)
+		);
+		const matchDateObj = new Date(matchDate);
+		const tournamentStart = new Date(
+			selectedTournament[0].tournamen_date_start
+		);
+		const tournamentEnd = new Date(selectedTournament[0].tournamen_date_end);
+		console.log(tournamentEnd);
+		if (!(matchDateObj >= tournamentStart && matchDateObj <= tournamentEnd)) {
+			toast.error(
+				`Не можна редагувати дату матчу поза межами дат турніру, дата проведення турніру з ${tournamentStart.toLocaleDateString()} до ${tournamentEnd.toLocaleDateString()}`
+			);
+			return null;
+		}
+
+		if (Number(team1Id) === Number(team2Id)) {
+			toast.error("Команда не може грати сама проти себе");
+			return null;
+		}
 
 		const team1Exists = teams.some(
 			(team) => Number(team.team_id) === Number(team1Id)
@@ -88,14 +111,12 @@ function EditMatchModal({ show, onClose, onUpdate, editingMatch, match }) {
 			.get("http://localhost:5000/api/tour-destinations")
 			.then((response) => {
 				const tourDestinations = response.data;
-				console.log(tournament);
 				if (tournament) {
 					const tournamentTeams = tourDestinations.filter(
 						(tourDestination) =>
 							Number(tourDestination.tournamentTournamentId) ===
 							Number(tournament.tournament_id)
 					);
-					console.log(tournamentTeams);
 					setTournamentTeams(tournamentTeams);
 				}
 			})
