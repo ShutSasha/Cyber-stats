@@ -176,7 +176,6 @@ class TeamController {
 			const { id } = req.params;
 			const team = await Team.findOne({
 				where: { team_id: id },
-				include: [{ model: EsportsPlayer, as: "players" }],
 			});
 			return res.json(team);
 		} catch (error) {

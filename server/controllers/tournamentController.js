@@ -92,6 +92,18 @@ class TournamentController {
 		const tournaments = await Tournament.findAll();
 		return res.json(tournaments);
 	}
+
+	async getOne(req, res, next) {
+		try {
+			const { id } = req.params;
+			const tournament = await Tournament.findOne({
+				where: { tournament_id: id },
+			});
+			return res.json(tournament);
+		} catch (error) {
+			next(ApiError.badRequest(error.message));
+		}
+	}
 }
 
 module.exports = new TournamentController();

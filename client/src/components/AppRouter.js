@@ -67,6 +67,13 @@ function AppRouter() {
 								: "Query"}
 						</Nav.Link>
 					</NavLink>
+					<NavLink style={{ textDecoration: "none" }} to="/compare-teams">
+						<Nav.Link as="div">
+							{window.location.pathname === "/compare-teams"
+								? "🔵 Compare teams"
+								: "Compare teams"}
+						</Nav.Link>
+					</NavLink>
 				</Nav>
 			</Navbar>
 			{routing}
