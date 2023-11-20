@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Table from "react-bootstrap/Table";
 import TeamModal from "../components/TeamModal";
@@ -8,15 +8,6 @@ import { toast } from "react-toastify";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
-// import { jsPDF } from "jspdf";
-// import "jspdf-autotable";
-
-// var fontName = "Arial";
-// var fontStyle = "normal";
-// var font = "..."; // Base64 font string
-
-// jsPDF.addFileToVFS("Arial.ttf", font);
-// jsPDF.addFont("Arial.ttf", fontName, fontStyle);
 
 function Team() {
 	const [teams, setTeams] = useState([]);
@@ -68,32 +59,6 @@ function Team() {
 		setSortConfig({ key, direction });
 	};
 
-	// const generatePDF = (teams) => {
-	// 	const doc = new jsPDF();
-	// 	doc.addFont(font, fontName, fontStyle); // Add the font
-	// 	const tableRows = [];
-
-	// 	teams.forEach((team) => {
-	// 		const teamData = {
-	// 			"Team Name": team.team_name,
-	// 			"Global Rating": team.global_rating,
-	// 			Points: team.team_points,
-	// 		};
-	// 		tableRows.push(teamData);
-	// 	});
-
-	// 	doc.autoTable({
-	// 		columns: [
-	// 			{ header: "Team Name", dataKey: "Team Name" },
-	// 			{ header: "Global Rating", dataKey: "Global Rating" },
-	// 			{ header: "Points", dataKey: "Points" },
-	// 		],
-	// 		body: tableRows,
-	// 		startY: 20,
-	// 	});
-	// 	doc.save(`report_${Date().split(" ").join("_")}.pdf`);
-	// };
-
 	const generatePDF = (teams) => {
 		const teamData = teams.map((team) => [
 			team.team_name,
@@ -115,6 +80,47 @@ function Team() {
 		pdfMake.createPdf(docDefinition).open();
 	};
 
+	const calculateGlobalRating = useCallback((teamData, teams) => {
+		if (teams.length === 0) {
+			return 1;
+		}
+
+		const sortedTeams = [...teams].sort(
+			(a, b) => b.team_points - a.team_points
+		);
+
+		let rank = sortedTeams.findIndex(
+			(team) => Number(team.team_id) === Number(teamData.team_id)
+		);
+
+		return rank + 1;
+	}, []);
+
+	const updateTeamRating = useCallback(
+		(teams) => {
+			teams.forEach((team) => {
+				const newGlobalRating = calculateGlobalRating(team, teams);
+				if (Number(newGlobalRating) !== Number(team.global_rating)) {
+					team.global_rating = newGlobalRating;
+					console.log(team);
+					axios
+						.put(
+							`http://localhost:5000/api/team/teamEdit/${team.team_id}`,
+							team
+						)
+						.catch((err) => {
+							console.error(err);
+						});
+				}
+			});
+		},
+		[calculateGlobalRating]
+	);
+
+	useEffect(() => {
+		updateTeamRating(teams);
+	}, [teams, updateTeamRating]);
+
 	const deleteTeam = (id) => {
 		axios
 			.get(`http://localhost:5000/api/match`)
@@ -131,7 +137,11 @@ function Team() {
 					axios
 						.delete(`http://localhost:5000/api/team/teamDel/${id}`)
 						.then((response) => {
+							const newTeam = teams.filter(
+								(team) => Number(team.team_id) !== Number(id)
+							);
 							setTeams(teams.filter((team) => team.team_id !== id));
+							updateTeamRating(newTeam);
 						})
 						.catch((error) => {
 							console.error(`Error: ${error}`);
@@ -147,31 +157,58 @@ function Team() {
 			});
 	};
 
-	const updateTeam = async (teamData) => {
-		const response = await fetch(
-			`http://localhost:5000/api/team/teamEdit/${editingTeam.team_id}`,
-			{
-				method: "PUT",
-				body: teamData,
-			}
-		);
+	const createTeam = (teamData) => {
+		console.log(teamData);
+		axios
+			.post("http://localhost:5000/api/team", teamData)
+			.then((response) => {
+				console.log(response.data);
+				const newTeam = response.data;
+				const newTeams = [...teams, newTeam];
+				setTeams(newTeams);
+				const global_rating = calculateGlobalRating(newTeam, newTeams);
+				newTeam.global_rating = global_rating;
+				axios
+					.put(
+						`http://localhost:5000/api/team/teamEdit/${newTeam.team_id}`,
+						newTeam
+					)
+					.then((response) => {
+						updateTeamRating(newTeams);
+						closeModal();
+					})
+					.catch((err) => console.error(err));
+			})
+			.catch((err) => console.error(err));
+	};
 
-		if (!response.ok) {
-			throw new Error("Network response was not ok");
-		}
-
-		const updatedTeamResponse = await fetch(
-			`http://localhost:5000/api/team/${editingTeam.team_id}`
-		);
-		const updatedTeam = await updatedTeamResponse.json();
-
-		setTeams(
-			teams.map((team) =>
-				team.team_id === editingTeam.team_id ? updatedTeam : team
-			)
-		);
-
+	useEffect(() => {
+		updateTeamRating(teams);
 		closeEditModal();
+	}, [teams, updateTeamRating]);
+
+	const updateTeam = (teamData) => {
+		axios
+			.put(
+				`http://localhost:5000/api/team/teamEdit/${editingTeam.team_id}`,
+				teamData
+			)
+			.then((response) => {
+				axios
+					.get("http://localhost:5000/api/team")
+					.then((res) => {
+						const newTeams = res.data.rows.map((team) =>
+							Number(team.team_id) === Number(editingTeam.team_id)
+								? { ...team, ...teamData }
+								: team
+						);
+						setTeams(newTeams);
+					})
+					.catch((err) => console.error(err));
+			})
+			.catch((error) => {
+				console.error(`Error: ${error}`);
+			});
 	};
 
 	useEffect(() => {
@@ -338,6 +375,7 @@ function Team() {
 				onClose={closeModal}
 				setTeams={setTeams}
 				teams={teams}
+				onCreate={createTeam}
 			/>
 
 			<EditTeamModal

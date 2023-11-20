@@ -109,7 +109,6 @@ function Player() {
 		const sortedPlayers = [...players].sort(
 			(a, b) => b.esports_player_points - a.esports_player_points
 		);
-
 		let rank = sortedPlayers.findIndex(
 			(player) => player.esports_player_id === playerData.esports_player_id
 		);

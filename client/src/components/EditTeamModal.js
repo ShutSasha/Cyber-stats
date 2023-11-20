@@ -7,7 +7,6 @@ function EditTeamModal({ show, onClose, onUpdate, editingTeam }) {
 	const [country, setCountry] = useState("");
 	const [dateOfCreation, setDateOfCreation] = useState("");
 	const [coach, setCoach] = useState("");
-	const [globalRating, setGlobalRating] = useState(0);
 	const [points, setPoints] = useState(0);
 	const [img, setImg] = useState(null);
 
@@ -17,7 +16,6 @@ function EditTeamModal({ show, onClose, onUpdate, editingTeam }) {
 			setCountry(editingTeam.team_country);
 			setDateOfCreation(editingTeam.date_of_creating_team);
 			setCoach(editingTeam.coach_team);
-			setGlobalRating(editingTeam.global_rating);
 			setPoints(editingTeam.team_points);
 			setImg(null);
 		}
@@ -31,8 +29,7 @@ function EditTeamModal({ show, onClose, onUpdate, editingTeam }) {
 		teamData.append("team_country", country);
 		teamData.append("date_of_creating_team", dateOfCreation);
 		teamData.append("coach_team", coach);
-		teamData.append("global_rating", globalRating);
-		teamData.append("team_points", points);
+		teamData.append("team_points", Number(points));
 		if (img) {
 			teamData.append("img", img);
 		}
@@ -81,14 +78,6 @@ function EditTeamModal({ show, onClose, onUpdate, editingTeam }) {
 							type="text"
 							value={coach}
 							onChange={(e) => setCoach(e.target.value)}
-						/>
-					</label>
-					<label>
-						Global rating:
-						<input
-							type="number"
-							value={globalRating}
-							onChange={(e) => setGlobalRating(e.target.value)}
 						/>
 					</label>
 					<label>
