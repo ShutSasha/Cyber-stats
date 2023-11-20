@@ -9,8 +9,6 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 	const [playerSurname, setPlayerSurname] = useState("");
 	const [playerNickname, setPlayerNickname] = useState("");
 	const [playerRole, setPlayerRole] = useState("");
-	const [playerGlobalRating, setPlayerGlobalRating] = useState(0);
-	const [playerRoleRating, setPlayerRoleRating] = useState(0);
 	const [playerPoints, setPlayerPoints] = useState(0);
 	const [playerBirthDate, setPlayerBirthDate] = useState("");
 	const [teamId, setTeamId] = useState(0);
@@ -22,8 +20,6 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 			setPlayerSurname(editingPlayer.surname);
 			setPlayerNickname(editingPlayer.nickname);
 			setPlayerRole(editingPlayer.role);
-			setPlayerGlobalRating(editingPlayer.global_rating);
-			setPlayerRoleRating(editingPlayer.role_rating);
 			setPlayerPoints(editingPlayer.esports_player_points);
 			setPlayerBirthDate(editingPlayer.date_of_birth);
 			setTeamId(editingPlayer.teamTeamId);
@@ -38,12 +34,15 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 			surname: playerSurname,
 			nickname: playerNickname,
 			role: playerRole,
-			global_rating: playerGlobalRating,
-			role_rating: playerRoleRating,
 			esports_player_points: playerPoints,
 			date_of_birth: playerBirthDate,
 			teamTeamId: Number(teamId),
 		};
+
+		if (playerPoints < 0) {
+			toast.error("Гравець не може мати менше нуля очків");
+			return;
+		}
 
 		for (let key in playerData) {
 			if (!playerData[key]) {
@@ -120,22 +119,6 @@ function EditPlayerModal({ show, onClose, onUpdate, editingPlayer }) {
 							<option value="Rifler">Rifler</option>
 							<option value="Star Player">Star Player</option>
 						</select>
-					</label>
-					<label>
-						Global Rating:
-						<input
-							type="number"
-							value={playerGlobalRating}
-							onChange={(e) => setPlayerGlobalRating(e.target.value)}
-						/>
-					</label>
-					<label>
-						Role Rating:
-						<input
-							type="number"
-							value={playerRoleRating}
-							onChange={(e) => setPlayerRoleRating(e.target.value)}
-						/>
 					</label>
 					<label>
 						Player Points:

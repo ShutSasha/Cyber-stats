@@ -192,7 +192,6 @@ function Team() {
 							if (reloadCount < 5) {
 								setReloadCount(reloadCount + 1);
 								window.location.reload();
-								console.log(reloadCount);
 							}
 							return { ...team, imgExists: false };
 						});
@@ -205,7 +204,7 @@ function Team() {
 			.catch((error) => {
 				console.error(`Error: ${error}`);
 			});
-	}, []);
+	}, [reloadCount]);
 
 	return (
 		<div>

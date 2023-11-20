@@ -9,8 +9,8 @@ function PlayerModal({ show, onClose, onCreate }) {
 	const [playerSurname, setPlayerSurname] = useState("");
 	const [playerNickname, setPlayerNickname] = useState("");
 	const [playerRole, setPlayerRole] = useState("");
-	const [playerGlobalRating, setPlayerGlobalRating] = useState(0);
-	const [playerRoleRating, setPlayerRoleRating] = useState(0);
+	// const [playerGlobalRating, setPlayerGlobalRating] = useState(0);
+	// const [playerRoleRating, setPlayerRoleRating] = useState(0);
 	const [playerPoints, setPlayerPoints] = useState(0);
 	const [playerBirthDate, setPlayerBirthDate] = useState("");
 	const [teamId, setTeamId] = useState(0);
@@ -24,12 +24,17 @@ function PlayerModal({ show, onClose, onCreate }) {
 			surname: playerSurname,
 			nickname: playerNickname,
 			role: playerRole,
-			global_rating: playerGlobalRating,
-			role_rating: playerRoleRating,
+			// global_rating: playerGlobalRating,
+			// role_rating: playerRoleRating,
 			esports_player_points: playerPoints,
 			date_of_birth: playerBirthDate,
 			teamTeamId: teamId,
 		};
+
+		if (playerPoints < 0) {
+			toast.error("Гравець не може мати менше нуля очків");
+			return;
+		}
 
 		if (playerPoints > 1000000000) {
 			toast.error("Очки гравця не можуть бути більше за 1.000.000.000");
@@ -107,7 +112,7 @@ function PlayerModal({ show, onClose, onCreate }) {
 							<option value="Star Player">Star Player</option>
 						</select>
 					</label>
-					<label>
+					{/* <label>
 						Global Rating:
 						<input
 							type="number"
@@ -122,7 +127,7 @@ function PlayerModal({ show, onClose, onCreate }) {
 							value={playerRoleRating}
 							onChange={(e) => setPlayerRoleRating(e.target.value)}
 						/>
-					</label>
+					</label> */}
 					<label>
 						Player Points:
 						<input

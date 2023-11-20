@@ -6,6 +6,7 @@ import EditPlayerModal from "../components/EditPlayerModal";
 import Button from "react-bootstrap/esm/Button";
 import { toast } from "react-toastify";
 import Select from "react-select";
+import { useCallback } from "react";
 
 function Player() {
 	const [players, setPlayers] = useState([]);
@@ -80,7 +81,99 @@ function Player() {
 		setSortConfig({ key, direction });
 	};
 
+	const calculateRoleRating = useCallback((playerData, players) => {
+		const sameRolePlayers = players.filter(
+			(player) => player.role === playerData.role
+		);
+
+		if (sameRolePlayers.length === 0) {
+			return 1;
+		}
+
+		sameRolePlayers.sort(
+			(a, b) => b.esports_player_points - a.esports_player_points
+		);
+
+		let rank = sameRolePlayers.findIndex(
+			(player) => player.esports_player_id === playerData.esports_player_id
+		);
+
+		return rank + 1;
+	}, []);
+
+	const calculateGlobalRating = useCallback((playerData, players) => {
+		if (players.length === 0) {
+			return 1;
+		}
+
+		const sortedPlayers = [...players].sort(
+			(a, b) => b.esports_player_points - a.esports_player_points
+		);
+
+		let rank = sortedPlayers.findIndex(
+			(player) => player.esports_player_id === playerData.esports_player_id
+		);
+
+		return rank + 1;
+	}, []);
+
+	const updatePlayerRatings = useCallback(
+		(players) => {
+			// Update role ratings
+			players.forEach((player) => {
+				const newRoleRating = calculateRoleRating(player, players);
+				if (newRoleRating !== player.role_rating) {
+					player.role_rating = newRoleRating;
+					axios
+						.put(
+							`http://localhost:5000/api/player/${player.esports_player_id}`,
+							player
+						)
+						.catch((error) => {
+							console.error(
+								`Error updating player role rating: ${error}`
+							);
+						});
+				}
+			});
+
+			console.log(players);
+			// Update global ratings
+			players.forEach((player) => {
+				const newGlobalRating = calculateGlobalRating(player, players);
+				if (Number(newGlobalRating) !== Number(player.global_rating)) {
+					player.global_rating = newGlobalRating;
+					axios
+						.put(
+							`http://localhost:5000/api/player/${player.esports_player_id}`,
+							player
+						)
+						.catch((error) => {
+							console.error(
+								`Error updating player global rating: ${error}`
+							);
+						});
+				}
+			});
+		},
+		[calculateRoleRating, calculateGlobalRating]
+	);
+
+	useEffect(() => {
+		updatePlayerRatings(players);
+	}, [players, updatePlayerRatings]);
+
 	const createPlayer = (playerData) => {
+		// Calculate role_rating and global_rating based on playerData
+		const role_rating = calculateRoleRating(playerData, players);
+		const global_rating = calculateGlobalRating(playerData, players);
+
+		const newPlayerData = {
+			...playerData,
+			role_rating,
+			global_rating,
+		};
+
 		const teamPlayers = players.filter(
 			(player) => Number(player.teamTeamId) === Number(playerData.teamTeamId)
 		);
@@ -91,9 +184,11 @@ function Player() {
 		}
 
 		axios
-			.post("http://localhost:5000/api/player", playerData)
+			.post("http://localhost:5000/api/player", newPlayerData)
 			.then((response) => {
-				setPlayers([...players, response.data]);
+				const newPlayers = [...players, response.data];
+				setPlayers(newPlayers);
+				updatePlayerRatings(newPlayers); // Update the ratings after adding a new player
 				closeModal();
 			})
 			.catch((error) => {
@@ -105,9 +200,11 @@ function Player() {
 		axios
 			.delete(`http://localhost:5000/api/player/${id}`)
 			.then((response) => {
-				setPlayers(
-					players.filter((player) => player.esports_player_id !== id)
+				const newPlayers = players.filter(
+					(player) => player.esports_player_id !== id
 				);
+				setPlayers(newPlayers);
+				updatePlayerRatings(newPlayers);
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);
@@ -132,13 +229,13 @@ function Player() {
 		axios
 			.put(`http://localhost:5000/api/player/${id}`, updatedPlayerData)
 			.then((response) => {
-				setPlayers(
-					players.map((player) =>
-						player.esports_player_id === id
-							? { ...player, ...updatedPlayerData }
-							: player
-					)
+				const newPlayers = players.map((player) =>
+					player.esports_player_id === id
+						? { ...player, ...updatedPlayerData }
+						: player
 				);
+				setPlayers(newPlayers);
+				updatePlayerRatings(newPlayers);
 				closeEditModal();
 			})
 			.catch((error) => {
