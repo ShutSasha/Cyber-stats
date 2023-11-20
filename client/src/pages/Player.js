@@ -27,11 +27,11 @@ function Player() {
 	};
 
 	const roles = [
-		{ value: "Капітан", label: "Captain" },
-		{ value: "Снайпер", label: "Sniper" },
+		{ value: "Captain", label: "Captain" },
+		{ value: "Sniper", label: "Sniper" },
 		{ value: "Entry Fragger", label: "Entry Fragger" },
 		{ value: "Refragger", label: "Refragger" },
-		{ value: "Підтримка", label: "Support" },
+		{ value: "Support", label: "Support" },
 		{ value: "Lurker", label: "Lurker" },
 		{ value: "Rifler", label: "Rifler" },
 		{ value: "Star Player", label: "Star Player" },

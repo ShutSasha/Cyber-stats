@@ -36,7 +36,7 @@ function AppRouter() {
 							{window.location.pathname === "/team" ? "🔵 Team" : "Team"}
 						</Nav.Link>
 					</NavLink>
-					<NavLink
+					{/* <NavLink
 						style={{ textDecoration: "none" }}
 						to="/tour-destination"
 					>
@@ -45,7 +45,7 @@ function AppRouter() {
 								? "🔵 Tour destination"
 								: "Tour destination"}
 						</Nav.Link>
-					</NavLink>
+					</NavLink> */}
 					<NavLink style={{ textDecoration: "none" }} to="/match">
 						<Nav.Link as="div">
 							{window.location.pathname === "/match"

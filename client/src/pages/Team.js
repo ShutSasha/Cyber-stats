@@ -25,6 +25,7 @@ function Team() {
 	const [editingTeam, setEditingTeam] = useState(null);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortConfig, setSortConfig] = useState(null);
+	const [reloadCount, setReloadCount] = useState(0);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -188,6 +189,11 @@ function Team() {
 							axios.put(
 								`http://localhost:5000/api/team/teamErrorImg/${team.team_id}`
 							);
+							if (reloadCount < 5) {
+								setReloadCount(reloadCount + 1);
+								window.location.reload();
+								console.log(reloadCount);
+							}
 							return { ...team, imgExists: false };
 						});
 				});
