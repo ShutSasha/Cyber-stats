@@ -21,7 +21,7 @@ function QueryToDB() {
 	`,
 		`SELECT esports_player_id, name, surname, global_rating, esports_player_points
 	FROM public.esports_players
-	ORDER BY global_rating DESC
+	ORDER BY global_rating ASC
 	LIMIT 3;
 	`,
 	];
@@ -29,7 +29,7 @@ function QueryToDB() {
 	const requestsName = [
 		"Запит на отримання імені та прізвища гравців, які належать до команди з найвищим глобальним рейтингом:",
 		"Запит на отримання імені турніру та кількості команд, які в ньому брали участь:",
-		"Знайти топ-5 гравців з найвищим рейтингом",
+		"Знайти топ-3 гравців з найвищим рейтингом",
 	];
 
 	const handleButtonClick = (index) => {
