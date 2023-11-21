@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
+import React, { useState, useEffect } from "react";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
 
-function EditTournamentModal ({ show, onClose, onUpdate, editingTournament }) {
+function EditTournamentModal({ show, onClose, onUpdate, editingTournament }) {
 	const [tournamentName, setTournamentName] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
 	const [place, setPlace] = useState("");
 	const [prizeFund, setPrizeFund] = useState(0);
-	const [points, setPoints] = useState(0);
 
 	useEffect(() => {
 		if (editingTournament) {
@@ -17,7 +16,6 @@ function EditTournamentModal ({ show, onClose, onUpdate, editingTournament }) {
 			setEndDate(editingTournament.tournamen_date_end);
 			setPlace(editingTournament.tournament_place);
 			setPrizeFund(editingTournament.prize_fund);
-			setPoints(editingTournament.tournament_points);
 		}
 	}, [editingTournament]);
 
@@ -30,7 +28,6 @@ function EditTournamentModal ({ show, onClose, onUpdate, editingTournament }) {
 			tournamen_date_end: endDate,
 			tournament_place: place,
 			prize_fund: prizeFund,
-			tournament_points: points
 		};
 
 		onUpdate(tournamentData);
@@ -42,30 +39,49 @@ function EditTournamentModal ({ show, onClose, onUpdate, editingTournament }) {
 				<Modal.Title>Edit tournament</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
-				<form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+				<form
+					onSubmit={handleSubmit}
+					style={{ display: "flex", flexDirection: "column", gap: "10px" }}
+				>
 					<label>
 						Name of tournament:
-						<input type="text" value={tournamentName} onChange={e => setTournamentName(e.target.value)} />
+						<input
+							type="text"
+							value={tournamentName}
+							onChange={(e) => setTournamentName(e.target.value)}
+						/>
 					</label>
 					<label>
 						Start date:
-						<input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
+						<input
+							type="date"
+							value={startDate}
+							onChange={(e) => setStartDate(e.target.value)}
+						/>
 					</label>
 					<label>
 						End data:
-						<input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
+						<input
+							type="date"
+							value={endDate}
+							onChange={(e) => setEndDate(e.target.value)}
+						/>
 					</label>
 					<label>
 						place:
-						<input type="text" value={place} onChange={e => setPlace(e.target.value)} />
+						<input
+							type="text"
+							value={place}
+							onChange={(e) => setPlace(e.target.value)}
+						/>
 					</label>
 					<label>
 						Prize fund:
-						<input type="number" value={prizeFund} onChange={e => setPrizeFund(e.target.value)} />
-					</label>
-					<label>
-						Points:
-						<input type="number" value={points} onChange={e => setPoints(e.target.value)} />
+						<input
+							type="number"
+							value={prizeFund}
+							onChange={(e) => setPrizeFund(e.target.value)}
+						/>
 					</label>
 					<input type="submit" value="Update tournament" />
 				</form>

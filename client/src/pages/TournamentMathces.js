@@ -62,7 +62,6 @@ function TournamentMatches() {
 						<p>End Date: {tournament.tournamen_date_end}</p>
 						<p>Place: {tournament.tournament_place}</p>
 						<p>Prize Fund: {tournament.prize_fund}$</p>
-						<p>Points: {tournament.tournament_points}</p>
 					</div>
 					<div>
 						<h1>Matches for Tournament {tournament.tournament_name}</h1>

@@ -54,38 +54,55 @@ function Tournament() {
 			);
 		});
 
+		const day = currentDate.getDate();
+		const month = currentDate.getMonth() + 1;
+		const year = currentDate.getFullYear();
+		const formattedDate = `Current date in dd/mm/yyyy: ${day}/${month}/${year}`;
+
 		const tournamentData = relevantTournaments.map((tournament) => [
 			tournament.tournament_name,
 			tournament.tournamen_date_start,
 			tournament.tournamen_date_end,
 			tournament.tournament_place,
-			tournament.prize_fund,
-			tournament.tournament_points,
+			`${tournament.prize_fund}$`,
 		]);
 
 		let docDefinition = {
 			content: [
 				{
-					text: "Турніри, які зараз проводяться або будуть проводитись",
 					style: "header",
+					text: "Турніри, які зараз проводяться або будуть проводитись",
 				},
 				{
-					table: {
-						headerRows: 1,
-						body: [
-							[
-								{ text: "Tournament Name", alignment: "center" },
-								{ text: "Date start", alignment: "center" },
-								{ text: "Date end", alignment: "center" },
-								{ text: "Place", alignment: "center" },
-								{ text: "Prize fund", alignment: "center" },
-								{ text: "Points", alignment: "center" },
-							],
-							...tournamentData.map((row) =>
-								row.map((cell) => ({ text: cell, alignment: "center" }))
-							),
-						],
-					},
+					columns: [
+						{ width: "*", text: "" },
+						{
+							width: "auto",
+							table: {
+								headerRows: 1,
+								body: [
+									[
+										{ text: "Tournament Name", alignment: "center" },
+										{ text: "Date start", alignment: "center" },
+										{ text: "Date end", alignment: "center" },
+										{ text: "Place", alignment: "center" },
+										{ text: "Prize fund", alignment: "center" },
+									],
+									...tournamentData.map((row) =>
+										row.map((cell) => ({
+											text: cell,
+											alignment: "center",
+										}))
+									),
+								],
+							},
+						},
+						{ width: "*", text: "" },
+					],
+				},
+				{
+					style: "date",
+					text: formattedDate,
 				},
 			],
 			styles: {
@@ -94,6 +111,9 @@ function Tournament() {
 					bold: true,
 					margin: [0, 0, 0, 10],
 					alignment: "center",
+				},
+				date: {
+					margin: [0, 10, 0, 0],
 				},
 			},
 		};
@@ -117,11 +137,8 @@ function Tournament() {
 			return;
 		}
 
-		if (
-			tournamentData.prize_fund < 0 ||
-			tournamentData.tournament_points < 0
-		) {
-			alert("Очки та призовий фонд не можуть бути меншими за 0.");
+		if (Number(tournamentData.prize_fund) < 0) {
+			alert("Призовий фонд не може бути меншимим за 0.");
 			return;
 		}
 
@@ -177,11 +194,8 @@ function Tournament() {
 			return;
 		}
 
-		if (
-			updatedTournamentData.prize_fund < 0 ||
-			updatedTournamentData.tournament_points < 0
-		) {
-			alert("Очки та призовий фонд не можуть бути меншими за 0.");
+		if (updatedTournamentData.prize_fund < 0) {
+			alert("Призовий фонд не може бути меншимим за 0.");
 			return;
 		}
 
@@ -273,7 +287,6 @@ function Tournament() {
 						<th>End Date</th>
 						<th>Place</th>
 						<th>Prize Fund</th>
-						<th>Points</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -284,7 +297,6 @@ function Tournament() {
 							<td>{tournament.tournamen_date_end}</td>
 							<td>{tournament.tournament_place}</td>
 							<td>{tournament.prize_fund}$</td>
-							<td>{tournament.tournament_points}</td>
 							<td>
 								<div
 									style={{

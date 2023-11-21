@@ -12,7 +12,6 @@ const Tournament = sequelize.define("tournament", {
 	tournamen_date_end: { type: DataTypes.DATEONLY },
 	tournament_place: { type: DataTypes.STRING },
 	prize_fund: { type: DataTypes.INTEGER },
-	tournament_points: { type: DataTypes.INTEGER },
 });
 
 const Team = sequelize.define("team", {

@@ -60,21 +60,67 @@ function Team() {
 	};
 
 	const generatePDF = (teams) => {
-		const teamData = teams.map((team) => [
-			team.team_name,
-			team.global_rating,
-			team.team_points,
-		]);
+		const currentDate = new Date();
+		const day = currentDate.getDate();
+		const month = currentDate.getMonth() + 1;
+		const year = currentDate.getFullYear();
+		const formattedDate = `Current date in dd/mm/yyyy: ${day}/${month}/${year}`;
+
+		let filterTeams = teams
+			.sort((a, b) => a.global_rating - b.global_rating)
+			.slice(0, 5);
+		console.log(filterTeams);
+		const teamData = filterTeams.map((team) => {
+			return [
+				team.team_name,
+				team.global_rating,
+				team.team_points,
+				team.team_country,
+				team.coach_team,
+			];
+		});
 
 		let docDefinition = {
 			content: [
+				{ style: "header", text: "Топ-5 команди за глобальним рейтингом" },
 				{
-					table: {
-						headerRows: 1,
-						body: [["Team Name", "Global Rating", "Points"], ...teamData],
-					},
+					columns: [
+						{ width: "*", text: "" },
+						{
+							width: "auto",
+							table: {
+								headerRows: 1,
+								body: [
+									[
+										"Team Name",
+										"Global Rating",
+										"Points",
+										"Country",
+										"Coach",
+									],
+									...teamData,
+								],
+							},
+						},
+						{ width: "*", text: "" },
+					],
+				},
+				{
+					style: "date",
+					text: formattedDate,
 				},
 			],
+			styles: {
+				header: {
+					fontSize: 18,
+					bold: true,
+					margin: [0, 0, 0, 10],
+					alignment: "center",
+				},
+				date: {
+					margin: [0, 10, 0, 0],
+				},
+			},
 		};
 
 		pdfMake.createPdf(docDefinition).open();
