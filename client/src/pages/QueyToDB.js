@@ -1,28 +1,97 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import Table from 'react-bootstrap/Table';
+import React, { useState } from "react";
+import axios from "axios";
+import Table from "react-bootstrap/Table";
+import Button from "react-bootstrap/Button";
+import { toast } from "react-toastify";
 
-function QueryToDB () {
-	const [query, setQuery] = useState('');
+function QueryToDB() {
+	const [query, setQuery] = useState("");
 	const [result, setResult] = useState(null);
+
+	const requests = [
+		`SELECT e.name, e.surname, t.team_name
+		FROM public.esports_players e
+		JOIN public.teams t ON e."teamTeamId" = t.team_id
+		WHERE t.global_rating = (SELECT MIN(global_rating) FROM public.teams);
+		`,
+		`SELECT t.tournament_name, COUNT(distinct td."teamTeamId") as team_count
+	FROM public.tournaments t
+	JOIN public.tour_destinations td ON t.tournament_id = td."tournamentTournamentId"
+	GROUP BY t.tournament_name;
+	`,
+		`SELECT esports_player_id, name, surname, global_rating, esports_player_points
+	FROM public.esports_players
+	ORDER BY global_rating DESC
+	LIMIT 3;
+	`,
+	];
+
+	const requestsName = [
+		"Запит на отримання імені та прізвища гравців, які належать до команди з найвищим глобальним рейтингом:",
+		"Запит на отримання імені турніру та кількості команд, які в ньому брали участь:",
+		"Знайти топ-5 гравців з найвищим рейтингом",
+	];
+
+	const handleButtonClick = (index) => {
+		setQuery(requests[index]);
+	};
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
+		if (!query) {
+			toast.error(`Потрібно ввести запит`);
+			return;
+		}
+
 		try {
-			const response = await axios.post('http://localhost:5000/api/query-to-db', { query });
+			const response = await axios.post(
+				"http://localhost:5000/api/query-to-db",
+				{ query }
+			);
+			if (!response.data || response.data.length === 0) {
+				toast.error("Неправильний запит");
+				return;
+			}
 			setResult(response.data);
 		} catch (error) {
+			toast.error("Неправильний запит");
 			console.error(error);
 		}
+	};
+
+	const handleClear = () => {
+		setQuery("");
+		setResult(null);
 	};
 
 	return (
 		<div>
 			<form onSubmit={handleSubmit}>
-				<textarea style={{ width: '800px' }} value={query} onChange={(e) => setQuery(e.target.value)} />
-				<button type="submit">Execute the request</button>
+				<div style={{ display: "flex", flexDirection: "column" }}>
+					<textarea
+						style={{ width: "800px", height: "250px" }}
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+					/>
+					<Button variant="primary" type="submit">
+						Виконати запит
+					</Button>
+					<Button variant="secondary" onClick={handleClear}>
+						Очистити
+					</Button>
+					{requestsName.map((name, index) => (
+						<Button
+							variant="info"
+							key={index}
+							onClick={() => handleButtonClick(index)}
+						>
+							{name}
+						</Button>
+					))}
+					<div></div>
+				</div>
 			</form>
-			{result && (
+			{result && result.length > 0 ? (
 				<Table striped bordered hover>
 					<thead>
 						<tr>
@@ -41,8 +110,9 @@ function QueryToDB () {
 						))}
 					</tbody>
 				</Table>
+			) : (
+				<p>Немає результатів для відображення</p>
 			)}
-
 		</div>
 	);
 }
