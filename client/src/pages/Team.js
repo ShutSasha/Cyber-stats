@@ -3,7 +3,7 @@ import axios from "axios";
 import Table from "react-bootstrap/Table";
 import TeamModal from "../components/TeamModal";
 import EditTeamModal from "../components/EditTeamModal";
-import Button from "react-bootstrap/Button";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 import { toast } from "react-toastify";
 import pdfMake from "pdfmake/build/pdfmake";
 import pdfFonts from "pdfmake/build/vfs_fonts";
@@ -17,6 +17,10 @@ function Team() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortConfig, setSortConfig] = useState(null);
 	const [reloadCount, setReloadCount] = useState(0);
+	const [filterFromPoints, setFilterFromPoints] = useState(null);
+	const [filterToPoints, setFilterToPoints] = useState(null);
+	const [filterFromYear, setFilterFromYear] = useState(null);
+	const [filterToYear, setFilterToYear] = useState(null);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -44,8 +48,50 @@ function Team() {
 				return 0;
 			});
 		}
+
+		if (filterFromPoints !== null) {
+			sortableTeams = sortableTeams.filter(
+				(team) => Number(team.team_points) >= Number(filterFromPoints)
+			);
+		}
+
+		if (filterToPoints !== null) {
+			if (!filterToPoints) {
+				return sortableTeams;
+			}
+			sortableTeams = sortableTeams.filter(
+				(team) => Number(team.team_points) <= Number(filterToPoints)
+			);
+		}
+
+		if (filterFromYear !== null) {
+			sortableTeams = sortableTeams.filter(
+				(team) =>
+					Number(team.date_of_creating_team.slice(0, 4)) >=
+					Number(filterFromYear)
+			);
+		}
+
+		if (filterToYear !== null) {
+			if (!filterToYear) {
+				return sortableTeams;
+			}
+			sortableTeams = sortableTeams.filter(
+				(team) =>
+					Number(team.date_of_creating_team.slice(0, 4)) <=
+					Number(filterToYear)
+			);
+		}
+
 		return sortableTeams;
-	}, [filteredTeams, sortConfig]);
+	}, [
+		filteredTeams,
+		sortConfig,
+		filterFromPoints,
+		filterToPoints,
+		filterFromYear,
+		filterToYear,
+	]);
 
 	const requestSort = (key) => {
 		let direction = "ascending";
@@ -289,17 +335,86 @@ function Team() {
 			});
 	}, [reloadCount]);
 
+	const handleFilterFromPoints = (event) => {
+		setFilterFromPoints(event.target.value);
+	};
+
+	const handleFilterToPoints = (event) => {
+		setFilterToPoints(event.target.value);
+	};
+
+	const handleFilterFromYear = (event) => {
+		setFilterFromYear(event.target.value);
+	};
+
+	const handleFilterToYear = (event) => {
+		setFilterToYear(event.target.value);
+	};
+
 	return (
 		<div>
-			<input
-				type="text"
-				placeholder="Search by team name"
-				value={searchTerm}
-				onChange={handleSearchChange}
-			/>
-			<div>
-				<h5>Згенеруй звіт</h5>
+			<Container className="mt-5">
+				<Row className="d-flex justify-content-center">
+					<Col sm={4}>
+						<Form className="d-flex align-items-center text-center">
+							<Form.Label className="me-2" style={{ marginBottom: 0 }}>
+								Search
+							</Form.Label>
+							<Form.Control
+								type="search"
+								placeholder="Search by team name"
+								className="me-2"
+								aria-label="Search"
+								value={searchTerm}
+								onChange={handleSearchChange}
+							/>
+						</Form>
+					</Col>
+				</Row>
+			</Container>
+			<div style={{ marginBottom: "20px" }}>
+				<h5>Згенеруй звіт про топ-5 команд за глобальним рейтингом</h5>
 				<Button onClick={() => generatePDF(teams)}>Generate Report</Button>
+			</div>
+			<Form.Label>Select filter for points</Form.Label>
+			<div className="d-flex">
+				<div className="col-1 me-3">
+					<Form.Control
+						type="text"
+						placeholder="From points"
+						value={filterFromPoints || ""}
+						onChange={handleFilterFromPoints}
+					/>
+				</div>
+				<div className="col-1">
+					<Form.Control
+						type="text"
+						placeholder="To points"
+						value={filterToPoints || ""}
+						onChange={handleFilterToPoints}
+					/>
+				</div>
+			</div>
+			<div className="d-flex flex-column mb-4">
+				<Form.Label>Filter teams by date of creating</Form.Label>
+				<div className="d-flex">
+					<div className="col-1 me-3">
+						<Form.Control
+							type="text"
+							placeholder="From year"
+							value={filterFromYear || ""}
+							onChange={handleFilterFromYear}
+						/>
+					</div>
+					<div className="col-1">
+						<Form.Control
+							type="text"
+							placeholder="To year"
+							value={filterToYear || ""}
+							onChange={handleFilterToYear}
+						/>
+					</div>
+				</div>
 			</div>
 			<h1>Teams</h1>
 			<Table striped bordered hover>

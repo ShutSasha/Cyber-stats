@@ -3,7 +3,6 @@ import axios from "axios";
 import Table from "react-bootstrap/Table";
 import PlayerModal from "../components/PlayerModal";
 import EditPlayerModal from "../components/EditPlayerModal";
-// import Button from "react-bootstrap/esm/Button";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { useCallback } from "react";
@@ -20,6 +19,8 @@ function Player() {
 	const [roleFilter, setRoleFilter] = useState("");
 	const [filterFrom, setFilterFrom] = useState(null);
 	const [filterTo, setFilterTo] = useState(null);
+	const [filterFromYear, setFilterFromYear] = useState(null);
+	const [filterToYear, setFilterToYear] = useState(null);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -84,8 +85,34 @@ function Player() {
 				(team) => Number(team.esports_player_points) <= Number(filterTo)
 			);
 		}
+
+		if (filterFromYear !== null) {
+			sortableTeams = sortableTeams.filter(
+				(team) =>
+					Number(team.date_of_birth.slice(0, 4)) >= Number(filterFromYear)
+			);
+		}
+
+		if (filterToYear !== null) {
+			if (!filterToYear) {
+				return sortableTeams;
+			}
+			sortableTeams = sortableTeams.filter(
+				(team) =>
+					Number(team.date_of_birth.slice(0, 4)) <= Number(filterToYear)
+			);
+		}
+
 		return sortableTeams;
-	}, [filteredPlayersBySearch, sortConfig, roleFilter, filterFrom, filterTo]);
+	}, [
+		filteredPlayersBySearch,
+		sortConfig,
+		roleFilter,
+		filterFrom,
+		filterTo,
+		filterFromYear,
+		filterToYear,
+	]);
 
 	const requestSort = (key) => {
 		let direction = "ascending";
@@ -290,14 +317,27 @@ function Player() {
 		setFilterTo(event.target.value);
 	};
 
+	const handleFilterFromYear = (event) => {
+		setFilterFromYear(event.target.value);
+	};
+
+	const handleFilterToYear = (event) => {
+		setFilterToYear(event.target.value);
+	};
+
 	return (
 		<div>
 			<>
 				<Container className="mt-5">
 					<Row className="d-flex justify-content-center">
 						<Col sm={4}>
-							<Form className="d-flex flex-deriction align-items-center">
-								<Form.Label className="me-2">Search</Form.Label>
+							<Form className="d-flex align-items-center text-center">
+								<Form.Label
+									className="me-2"
+									style={{ marginBottom: 0 }}
+								>
+									Search
+								</Form.Label>
 								<Form.Control
 									type="search"
 									placeholder="Search by nickname"
@@ -311,20 +351,21 @@ function Player() {
 					</Row>
 				</Container>
 			</>
-			<h1>Table of players</h1>
 			<div className="d-flex flex-column mb-4">
 				<div className="col-2 mb-3">
+					<Form.Label>Select of roles</Form.Label>
 					<Select
 						isMulti
 						options={roles}
 						onChange={handleRoleFilterChange}
 					/>
 				</div>
+				<Form.Label>Select filter for points</Form.Label>
 				<div className="d-flex">
 					<div className="col-1 me-3">
 						<Form.Control
 							type="text"
-							placeholder="From"
+							placeholder="From points"
 							value={filterFrom || ""}
 							onChange={handleFilterFrom}
 						/>
@@ -332,14 +373,35 @@ function Player() {
 					<div className="col-1">
 						<Form.Control
 							type="text"
-							placeholder="To"
+							placeholder="To points"
 							value={filterTo || ""}
 							onChange={handleFilterTo}
 						/>
 					</div>
 				</div>
 			</div>
-
+			<div className="d-flex flex-column mb-4">
+				<Form.Label>Filter players by birth year</Form.Label>
+				<div className="d-flex">
+					<div className="col-1 me-3">
+						<Form.Control
+							type="text"
+							placeholder="From year"
+							value={filterFromYear || ""}
+							onChange={handleFilterFromYear}
+						/>
+					</div>
+					<div className="col-1">
+						<Form.Control
+							type="text"
+							placeholder="To year"
+							value={filterToYear || ""}
+							onChange={handleFilterToYear}
+						/>
+					</div>
+				</div>
+			</div>
+			<h1>Table of players</h1>
 			<Table striped bordered hover>
 				<thead>
 					<tr>

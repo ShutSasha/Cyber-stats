@@ -4,7 +4,7 @@ const playerController = require("../controllers/playerControlles");
 
 router.post("/", playerController.create);
 router.get("/", playerController.getAll);
-// router.get("/:id", playerController.getOne); // шоб вщять отдельно конкретного гравця
+// router.get("/:id", playerController.getOne);
 router.put("/:id", playerController.update);
 router.delete("/:id", playerController.delete);
 
