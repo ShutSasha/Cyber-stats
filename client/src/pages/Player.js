@@ -3,10 +3,11 @@ import axios from "axios";
 import Table from "react-bootstrap/Table";
 import PlayerModal from "../components/PlayerModal";
 import EditPlayerModal from "../components/EditPlayerModal";
-import Button from "react-bootstrap/esm/Button";
+// import Button from "react-bootstrap/esm/Button";
 import { toast } from "react-toastify";
 import Select from "react-select";
 import { useCallback } from "react";
+import { Button, Col, Container, Form, Row } from "react-bootstrap";
 
 function Player() {
 	const [players, setPlayers] = useState([]);
@@ -17,6 +18,8 @@ function Player() {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [sortConfig, setSortConfig] = useState(null);
 	const [roleFilter, setRoleFilter] = useState("");
+	const [filterFrom, setFilterFrom] = useState(null);
+	const [filterTo, setFilterTo] = useState(null);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -66,8 +69,23 @@ function Player() {
 				return 0;
 			});
 		}
+
+		if (filterFrom !== null) {
+			sortableTeams = sortableTeams.filter(
+				(team) => Number(team.esports_player_points) >= Number(filterFrom)
+			);
+		}
+
+		if (filterTo !== null) {
+			if (!filterTo) {
+				return sortableTeams;
+			}
+			sortableTeams = sortableTeams.filter(
+				(team) => Number(team.esports_player_points) <= Number(filterTo)
+			);
+		}
 		return sortableTeams;
-	}, [filteredPlayersBySearch, sortConfig, roleFilter]);
+	}, [filteredPlayersBySearch, sortConfig, roleFilter, filterFrom, filterTo]);
 
 	const requestSort = (key) => {
 		let direction = "ascending";
@@ -264,16 +282,64 @@ function Player() {
 			});
 	}, []);
 
+	const handleFilterFrom = (event) => {
+		setFilterFrom(event.target.value);
+	};
+
+	const handleFilterTo = (event) => {
+		setFilterTo(event.target.value);
+	};
+
 	return (
 		<div>
-			<input
-				type="text"
-				placeholder="Search by nickname"
-				value={searchTerm}
-				onChange={handleSearchChange}
-			/>
-			<h1>Players</h1>
-			<Select isMulti options={roles} onChange={handleRoleFilterChange} />
+			<>
+				<Container className="mt-5">
+					<Row className="d-flex justify-content-center">
+						<Col sm={4}>
+							<Form className="d-flex flex-deriction align-items-center">
+								<Form.Label className="me-2">Search</Form.Label>
+								<Form.Control
+									type="search"
+									placeholder="Search by nickname"
+									className="me-2"
+									aria-label="Search"
+									value={searchTerm}
+									onChange={handleSearchChange}
+								/>
+							</Form>
+						</Col>
+					</Row>
+				</Container>
+			</>
+			<h1>Table of players</h1>
+			<div className="d-flex flex-column mb-4">
+				<div className="col-2 mb-3">
+					<Select
+						isMulti
+						options={roles}
+						onChange={handleRoleFilterChange}
+					/>
+				</div>
+				<div className="d-flex">
+					<div className="col-1 me-3">
+						<Form.Control
+							type="text"
+							placeholder="From"
+							value={filterFrom || ""}
+							onChange={handleFilterFrom}
+						/>
+					</div>
+					<div className="col-1">
+						<Form.Control
+							type="text"
+							placeholder="To"
+							value={filterTo || ""}
+							onChange={handleFilterTo}
+						/>
+					</div>
+				</div>
+			</div>
+
 			<Table striped bordered hover>
 				<thead>
 					<tr>
