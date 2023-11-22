@@ -13,6 +13,7 @@ function Match() {
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [editingMatch, setEditingMatch] = useState(null);
 	const [teamMatches, setTeamMatches] = useState({});
+	const [players, setPlayers] = useState([]);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -56,6 +57,41 @@ function Match() {
 			});
 	};
 
+	// const updatePlayersData = (updatedPlayers) => {
+	// 	axios
+	// 		.put(`http://localhost:5000/api/player/multiUpdate`, updatedPlayers[0])
+	// 		.then((res) => {})
+	// 		.catch((err) => {
+	// 			console.error(err);
+	// 		});
+	// 	axios
+	// 		.put(`http://localhost:5000/api/player/multiUpdate`, updatedPlayers[1])
+	// 		.then((res) => {})
+	// 		.catch((err) => {
+	// 			console.error(err);
+	// 		});
+	// };
+
+	const updatePlayersData = (updatedPlayers) => {
+		axios
+			.put(`http://localhost:5000/api/player`, updatedPlayers[0])
+			.then((res) => {
+				// Обробка успішної відповіді
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+
+		axios
+			.put(`http://localhost:5000/api/player`, updatedPlayers[1])
+			.then((res) => {
+				// Обробка успішної відповіді
+			})
+			.catch((err) => {
+				console.error(err);
+			});
+	};
+
 	const editPointForTeamCreate = (matchData, isUpdate, editMatchId) => {
 		const teamsArray = Object.values(teams);
 		let deltaOfPoints = matchData.match_points;
@@ -87,13 +123,53 @@ function Match() {
 
 		teamWinner.team_points += Number(deltaOfPoints);
 		teamLooser.team_points -= Number(deltaOfPoints);
+		teamWinner.team_points =
+			teamWinner.team_points < 0 ? 0 : teamWinner.team_points;
+		teamLooser.team_points =
+			teamLooser.team_points < 0 ? 0 : teamLooser.team_points;
+
+		let deltaForPlayer = deltaOfPoints / 10;
+		if (deltaForPlayer < 1 && deltaForPlayer > -1) {
+			deltaForPlayer = Math.round(deltaForPlayer);
+		}
+		let playersTeamWinner = players.filter(
+			(player) => Number(player.teamTeamId) === Number(teamWinner.team_id)
+		);
+		let playersTeamLooser = players.filter(
+			(player) => Number(player.teamTeamId) === Number(teamLooser.team_id)
+		);
+		const updatedPlayersTeamWinner = playersTeamWinner.map((player) => {
+			let newPoitns = player.esports_player_points + deltaForPlayer;
+			if (newPoitns < 0) {
+				newPoitns = 0;
+			}
+			return {
+				...player,
+				esports_player_points: newPoitns,
+			};
+		});
+
+		const updatedPlayersTeamLooser = playersTeamLooser.map((player) => {
+			let newPoitns = player.esports_player_points - deltaForPlayer;
+			if (newPoitns < 0) {
+				newPoitns = 0;
+			}
+			return {
+				...player,
+				esports_player_points: newPoitns,
+			};
+		});
 
 		if (teamLooser.team_points < 0) {
 			teamLooser.team_points = 0;
 		}
 
 		const updatedTeams = [teamWinner, teamLooser];
-
+		const updatedPlayers = [
+			updatedPlayersTeamWinner,
+			updatedPlayersTeamLooser,
+		];
+		updatePlayersData(updatedPlayers);
 		updateTeamsData(updatedTeams);
 	};
 
@@ -220,6 +296,17 @@ function Match() {
 			.get("http://localhost:5000/api/match")
 			.then((response) => {
 				setMatches(response.data);
+			})
+			.catch((error) => {
+				console.error(`Error: ${error}`);
+			});
+	}, []);
+
+	useEffect(() => {
+		axios
+			.get("http://localhost:5000/api/player")
+			.then((response) => {
+				setPlayers(response.data);
 			})
 			.catch((error) => {
 				console.error(`Error: ${error}`);

@@ -6,6 +6,7 @@ router.post("/", playerController.create);
 router.get("/", playerController.getAll);
 // router.get("/:id", playerController.getOne);
 router.put("/:id", playerController.update);
+router.put("/", playerController.updateAllPlayers);
 router.delete("/:id", playerController.delete);
 
 module.exports = router;

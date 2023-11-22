@@ -75,6 +75,51 @@ class PlayerController {
 		}
 	}
 
+	async updateAllPlayers(req, res, next) {
+		try {
+			const players = req.body; // Отримати новий масив гравців для оновлення
+			await Promise.all(
+				players.map(async (playerData) => {
+					const {
+						esports_player_id,
+						name,
+						surname,
+						nickname,
+						role,
+						global_rating,
+						role_rating,
+						esports_player_points,
+						date_of_birth,
+						teamTeamId,
+					} = playerData;
+					const player = await EsportsPlayer.findOne({
+						where: { esports_player_id },
+					});
+					if (!player) {
+						return next(
+							ApiError.badRequest(
+								`Player with ID ${esports_player_id} not found`
+							)
+						);
+					}
+					player.name = name;
+					player.surname = surname;
+					player.nickname = nickname;
+					player.role = role;
+					player.global_rating = global_rating;
+					player.role_rating = role_rating;
+					player.esports_player_points = esports_player_points;
+					player.date_of_birth = date_of_birth;
+					player.teamTeamId = teamTeamId;
+					await player.save();
+				})
+			);
+			return res.json({ message: "Players were updated" });
+		} catch (error) {
+			next(ApiError.badRequest(error.message));
+		}
+	}
+
 	async delete(req, res, next) {
 		try {
 			const { id } = req.params;
