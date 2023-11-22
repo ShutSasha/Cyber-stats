@@ -35,19 +35,80 @@ function Match() {
 			});
 	}, []);
 
+	const updateTeamsData = (updatedTeams) => {
+		axios
+			.put(
+				`http://localhost:5000/api/team/teamEdit/${updatedTeams[0].team_id}`,
+				updatedTeams[0]
+			)
+			.then((res) => {})
+			.catch((err) => {
+				console.error(err);
+			});
+		axios
+			.put(
+				`http://localhost:5000/api/team/teamEdit/${updatedTeams[1].team_id}`,
+				updatedTeams[1]
+			)
+			.then((res) => {})
+			.catch((err) => {
+				console.error(err);
+			});
+	};
+
+	const editPointForTeamCreate = (matchData, isUpdate, editMatchId) => {
+		const teamsArray = Object.values(teams);
+		let deltaOfPoints = matchData.match_points;
+		if (isUpdate) {
+			let currentMatch = matches.find(
+				(match) => Number(match.match_id) === Number(editMatchId)
+			);
+			deltaOfPoints = matchData.match_points - currentMatch.match_points;
+		}
+		let teamWinner;
+		let teamLooser;
+
+		if (matchData.result) {
+			teamWinner = teamsArray.find(
+				(team) => Number(team.team_id) === Number(matchData.team1_id)
+			);
+			teamLooser = teamsArray.find(
+				(team) => Number(team.team_id) === Number(matchData.team2_id)
+			);
+			console.log(deltaOfPoints);
+		} else {
+			teamWinner = teamsArray.find(
+				(team) => Number(team.team_id) === Number(matchData.team2_id)
+			);
+			teamLooser = teamsArray.find(
+				(team) => Number(team.team_id) === Number(matchData.team1_id)
+			);
+		}
+
+		teamWinner.team_points += Number(deltaOfPoints);
+		teamLooser.team_points -= Number(deltaOfPoints);
+
+		if (teamLooser.team_points < 0) {
+			teamLooser.team_points = 0;
+		}
+
+		const updatedTeams = [teamWinner, teamLooser];
+
+		updateTeamsData(updatedTeams);
+	};
+
 	const createMatch = (matchData) => {
 		axios
 			.post("http://localhost:5000/api/match", matchData)
 			.then((response) => {
+				editPointForTeamCreate(matchData);
 				axios
 					.post("http://localhost:5000/api/matchTeam", response.data)
-					.then((res) => {
-						console.log(`success`);
-					})
+					.then((res) => {})
 					.catch((err) => {
 						console.error(err);
 					});
-				console.log(response.data);
+
 				setMatches([...matches, response.data]);
 				closeModal();
 			})
@@ -94,13 +155,14 @@ function Match() {
 	};
 
 	const updateMatch = (id, updatedMatchData) => {
+		editPointForTeamCreate(updatedMatchData, true, id);
 		axios
 			.put(`http://localhost:5000/api/match/${id}`, updatedMatchData)
 			.then((response) => {
 				let result = teamMatches.filter((teamMatch) =>
 					matches.some((match) => id === teamMatch.matchMatchId)
 				);
-				console.log(result);
+
 				axios
 					.put(
 						`http://localhost:5000/api/matchTeam/${result[0].match_team_id}`,
