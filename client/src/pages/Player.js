@@ -22,6 +22,7 @@ function Player() {
 	const [filterFromYear, setFilterFromYear] = useState(null);
 	const [filterToYear, setFilterToYear] = useState(null);
 	const [selectedTeams, setSelectedTeams] = useState([]);
+	const [filterSelectTeam, setFilterSelctTeam] = useState([]);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -47,6 +48,11 @@ function Player() {
 		setRoleFilter(selectedOptions.map((option) => option.value));
 	};
 
+	const handleTeamFilterChange = (selectedOptions) => {
+		console.log(selectedOptions);
+		setFilterSelctTeam(selectedOptions.map((option) => option.value));
+	};
+
 	const filteredPlayersBySearch = players.filter((player) =>
 		player.nickname.toLowerCase().includes(searchTerm.toLowerCase())
 	);
@@ -70,6 +76,17 @@ function Player() {
 				}
 				return 0;
 			});
+		}
+
+		if (filterSelectTeam.length > 0) {
+			const filteredPlayers = filterSelectTeam.reduce((acc, el) => {
+				const playersForTeam = sortableTeams.filter(
+					(player) => player.teamTeamId === el
+				);
+				return [...acc, ...playersForTeam];
+			}, []);
+
+			sortableTeams = filteredPlayers;
 		}
 
 		if (filterFrom !== null) {
@@ -113,6 +130,7 @@ function Player() {
 		filterTo,
 		filterFromYear,
 		filterToYear,
+		filterSelectTeam,
 	]);
 
 	const requestSort = (key) => {
@@ -350,7 +368,7 @@ function Player() {
 			"Lurker",
 			"Rifler",
 			"Star Player",
-		]; // список ролей
+		];
 
 		const randomName = names[Math.floor(Math.random() * names.length)];
 		const randomSurname =
@@ -410,6 +428,10 @@ function Player() {
 						});
 				}
 				window.location.reload();
+			} else {
+				toast.error(
+					`У команди ${team.team_name} вже є 5 гравців, до неї не було додано ніяких гравців.`
+				);
 			}
 		});
 	};
@@ -449,6 +471,18 @@ function Player() {
 						onChange={handleRoleFilterChange}
 					/>
 				</div>
+				<div className="col-2 mb-3">
+					<Form.Label>Select of teams</Form.Label>
+					<Select
+						isMulti
+						options={teams.map((team) => ({
+							value: team.team_id,
+							label: team.team_name,
+						}))}
+						onChange={handleTeamFilterChange}
+					/>
+				</div>
+
 				<Form.Label>Select filter for points</Form.Label>
 				<div className="d-flex">
 					<div className="col-1 me-3">
@@ -490,15 +524,18 @@ function Player() {
 					</div>
 				</div>
 			</div>
-			<div>Створити невестачаючих гравців для команди</div>
-			<Select
-				isMulti
-				options={teams.map((team) => ({
-					value: team.team_id,
-					label: team.team_name,
-				}))}
-				onChange={handleTeamSelect}
-			/>
+			<div style={{ marginBottom: "20px" }}>
+				<p>Створити невестачаючих гравців для команди</p>
+				<Select
+					className="col-2"
+					isMulti
+					options={teams.map((team) => ({
+						value: team.team_id,
+						label: team.team_name,
+					}))}
+					onChange={handleTeamSelect}
+				/>
+			</div>
 			<Button onClick={() => handleCreatePlayers()}>Create players</Button>
 			<h1>Table of players</h1>
 			<Table striped bordered hover>
