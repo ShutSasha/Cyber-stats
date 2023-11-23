@@ -3,7 +3,7 @@ import axios from "axios";
 import Table from "react-bootstrap/Table";
 import TournamentModal from "../components/TournamentModal";
 import EditTournamentModal from "../components/EditTournamentModal";
-import Button from "react-bootstrap/esm/Button";
+import { Button, Form } from "react-bootstrap";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import pdfMake from "pdfmake/build/pdfmake";
@@ -15,30 +15,79 @@ function Tournament() {
 	const [showModal, setShowModal] = useState(false);
 	const [showEditModal, setShowEditModal] = useState(false);
 	const [editingTournament, setEditingTournament] = useState(null);
-	const [prizeFilter, setPrizeFilter] = useState(null);
+	const [filterFromPoints, setFilterFromPoints] = useState(null);
+	const [filterToPoints, setFilterToPoints] = useState(null);
+	const [filterFromYear, setFilterFromYear] = useState(null);
+	const [filterToYear, setFilterToYear] = useState(null);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
 	const openEditModal = () => setShowEditModal(true);
 	const closeEditModal = () => setShowEditModal(false);
 
-	const handlePrizeFilterChange = (event) => {
-		setPrizeFilter(event.target.value);
+	const handleFilterFromPoints = (event) => {
+		setFilterFromPoints(event.target.value);
 	};
 
-	const filteredTournaments = tournaments.filter((tournament) => {
-		if (prizeFilter === "0-100000") {
-			return tournament.prize_fund >= 0 && tournament.prize_fund <= 100000;
-		} else if (prizeFilter === "100000-500000") {
-			return (
-				tournament.prize_fund > 100000 && tournament.prize_fund <= 500000
+	const handleFilterToPoints = (event) => {
+		setFilterToPoints(event.target.value);
+	};
+
+	const handleFilterFromYear = (event) => {
+		setFilterFromYear(event.target.value);
+	};
+
+	const handleFilterToYear = (event) => {
+		setFilterToYear(event.target.value);
+	};
+
+	const sortedTournament = React.useMemo(() => {
+		let sortableTournaments = [...tournaments];
+
+		if (filterFromPoints !== null) {
+			sortableTournaments = sortableTournaments.filter(
+				(tournament) =>
+					Number(tournament.prize_fund) >= Number(filterFromPoints)
 			);
-		} else if (prizeFilter === "500000+") {
-			return tournament.prize_fund > 500000;
-		} else {
-			return true;
 		}
-	});
+
+		if (filterToPoints !== null) {
+			if (!filterToPoints) {
+				return sortableTournaments;
+			}
+			sortableTournaments = sortableTournaments.filter(
+				(tournament) =>
+					Number(tournament.prize_fund) <= Number(filterToPoints)
+			);
+		}
+
+		if (filterFromYear !== null) {
+			sortableTournaments = sortableTournaments.filter(
+				(tournament) =>
+					Number(tournament.tournamen_date_start.slice(0, 4)) >=
+					Number(filterFromYear)
+			);
+		}
+
+		if (filterToYear !== null) {
+			if (!filterToYear) {
+				return sortableTournaments;
+			}
+			sortableTournaments = sortableTournaments.filter(
+				(tournament) =>
+					Number(tournament.tournamen_date_end.slice(0, 4)) <=
+					Number(filterToYear)
+			);
+		}
+
+		return sortableTournaments;
+	}, [
+		filterFromPoints,
+		filterToPoints,
+		filterFromYear,
+		filterToYear,
+		tournaments,
+	]);
 
 	const generatePDF = (tournaments) => {
 		const currentDate = new Date();
@@ -237,47 +286,59 @@ function Tournament() {
 				Згенеруй звіт про турніри, які проводяться зараз або будуть
 				проводитись в майбутньому
 			</h5>
-			<Button onClick={() => generatePDF(tournaments)}>
+			<Button
+				style={{ marginBottom: "15px" }}
+				onClick={() => generatePDF(tournaments)}
+			>
 				Generate Report
 			</Button>
-			<div style={{ display: "flex", flexDirection: "column" }}>
-				<h5>Select prize fund</h5>
-				<label>
-					<input
-						type="radio"
-						value="all"
-						checked={prizeFilter === null}
-						onChange={() => setPrizeFilter(null)}
+
+			<div
+				style={{ marginBottom: "15px" }}
+				className="d-flex align-items-center"
+			>
+				<Form.Label style={{ marginBottom: 0, marginRight: "10px" }}>
+					Select prize fund
+				</Form.Label>
+				<div className="col-2 me-3">
+					<Form.Control
+						type="text"
+						placeholder="From prize fund"
+						value={filterFromPoints || ""}
+						onChange={handleFilterFromPoints}
 					/>
-					All
-				</label>
-				<label>
-					<input
-						type="radio"
-						value="0-100000"
-						checked={prizeFilter === "0-100000"}
-						onChange={handlePrizeFilterChange}
+				</div>
+				<div className="col-2">
+					<Form.Control
+						type="text"
+						placeholder="To prize fund"
+						value={filterToPoints || ""}
+						onChange={handleFilterToPoints}
 					/>
-					0-100000
-				</label>
-				<label>
-					<input
-						type="radio"
-						value="100000-500000"
-						checked={prizeFilter === "100000-500000"}
-						onChange={handlePrizeFilterChange}
+				</div>
+			</div>
+			<div
+				style={{ marginBottom: "20px" }}
+				className="d-flex align-items-center text-center"
+			>
+				<Form.Label>Filter tournaments by date</Form.Label>
+
+				<div className="col-2 me-3">
+					<Form.Control
+						type="text"
+						placeholder="From year"
+						value={filterFromYear || ""}
+						onChange={handleFilterFromYear}
 					/>
-					100000-500000
-				</label>
-				<label>
-					<input
-						type="radio"
-						value="500000+"
-						checked={prizeFilter === "500000+"}
-						onChange={handlePrizeFilterChange}
+				</div>
+				<div className="col-2">
+					<Form.Control
+						type="text"
+						placeholder="To year"
+						value={filterToYear || ""}
+						onChange={handleFilterToYear}
 					/>
-					500000+
-				</label>
+				</div>
 			</div>
 			<Table striped bordered hover>
 				<thead>
@@ -290,7 +351,7 @@ function Tournament() {
 					</tr>
 				</thead>
 				<tbody>
-					{filteredTournaments.map((tournament) => (
+					{sortedTournament.map((tournament) => (
 						<tr key={tournament.tournament_id}>
 							<td>{tournament.tournament_name}</td>
 							<td>{tournament.tournamen_date_start}</td>

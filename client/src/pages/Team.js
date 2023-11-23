@@ -21,6 +21,7 @@ function Team() {
 	const [filterToPoints, setFilterToPoints] = useState(null);
 	const [filterFromYear, setFilterFromYear] = useState(null);
 	const [filterToYear, setFilterToYear] = useState(null);
+	const [tourDestination, setTourDestination] = useState([]);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -213,40 +214,66 @@ function Team() {
 		updateTeamRating(teams);
 	}, [teams, updateTeamRating]);
 
-	const deleteTeam = (id) => {
+	useEffect(() => {
 		axios
-			.get(`http://localhost:5000/api/match`)
-			.then((response) => {
-				let isExist = false;
-				response.data.forEach((element) => {
-					if (element.team1_id === id || element.team2_id === id) {
-						isExist = true;
-					}
-				});
-				if (isExist) {
-					toast.error("Cannot delete team with associated matches");
-				} else {
-					axios
-						.delete(`http://localhost:5000/api/team/teamDel/${id}`)
-						.then((response) => {
-							const newTeam = teams.filter(
-								(team) => Number(team.team_id) !== Number(id)
-							);
-							setTeams(teams.filter((team) => team.team_id !== id));
-							updateTeamRating(newTeam);
-						})
-						.catch((error) => {
-							console.error(`Error: ${error}`);
-							toast.error(
-								"Не можна видалити команду, яка повязана з іншими таблицями"
-							);
-						});
-				}
+			.get(`http://localhost:5000/api/tour-destinations`)
+			.then((res) => {
+				console.log(res.data);
+				setTourDestination(res.data);
 			})
-			.catch((error) => {
-				console.error(`Error: ${error}`);
-				toast.error("Error fetching matches for team");
+			.catch((err) => {
+				console.log(err);
 			});
+	}, []);
+
+	const deleteTeam = (id) => {
+		try {
+			const isTeamInTour = tourDestination.some(
+				(el) => Number(el.teamTeamId) === Number(id)
+			);
+			if (isTeamInTour) {
+				toast.error(
+					"Ми не можемо видалити команду, яка приймає участь у турнірі"
+				);
+				return;
+			}
+
+			axios
+				.get(`http://localhost:5000/api/match`)
+				.then((response) => {
+					let isExist = false;
+					response.data.forEach((element) => {
+						if (element.team1_id === id || element.team2_id === id) {
+							isExist = true;
+						}
+					});
+					if (isExist) {
+						toast.error("Cannot delete team with associated matches");
+					} else {
+						axios
+							.delete(`http://localhost:5000/api/team/teamDel/${id}`)
+							.then((response) => {
+								const newTeam = teams.filter(
+									(team) => Number(team.team_id) !== Number(id)
+								);
+								setTeams(teams.filter((team) => team.team_id !== id));
+								updateTeamRating(newTeam);
+							})
+							.catch((error) => {
+								console.error(`Error: ${error}`);
+								toast.error(
+									"Не можна видалити команду, яка повязана з іншими таблицями"
+								);
+							});
+					}
+				})
+				.catch((error) => {
+					console.error(`Error: ${error}`);
+					toast.error("Error fetching matches for team");
+				});
+		} catch (err) {
+			console.error(err);
+		}
 	};
 
 	const createTeam = (teamData) => {

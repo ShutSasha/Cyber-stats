@@ -132,10 +132,10 @@ function CompareTeams() {
 		const player = {
 			name: randomName,
 			surname: randomSurname,
-			nickname: `${randomName.slice(0, 1)}${randomSurname}`, // Генерація псевдоніму
+			nickname: `${randomName.slice(0, 1)}${randomSurname}`,
 			role: randomRole,
 			esports_player_points: getRandomNumberInRange(50, 200),
-			date_of_birth: "2000-01-01", // Наприклад, дата народження
+			date_of_birth: "2000-01-01",
 			teamTeamId: teamId,
 		};
 		const role_rating = calculateRoleRating(player, players);

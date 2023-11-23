@@ -69,26 +69,44 @@ function QueryToDB() {
 			<form onSubmit={handleSubmit}>
 				<div style={{ display: "flex", flexDirection: "column" }}>
 					<textarea
-						style={{ width: "800px", height: "250px" }}
+						style={{
+							width: "800px",
+							height: "250px",
+							marginBottom: "30px",
+						}}
 						value={query}
 						onChange={(e) => setQuery(e.target.value)}
 					/>
-					<Button variant="primary" type="submit">
-						Виконати запит
-					</Button>
-					<Button variant="secondary" onClick={handleClear}>
-						Очистити
-					</Button>
-					{requestsName.map((name, index) => (
+					<div className=" d-flex justify-content-center flex-column">
 						<Button
-							variant="info"
-							key={index}
-							onClick={() => handleButtonClick(index)}
+							style={{ marginBottom: "10px" }}
+							className="col-3"
+							variant="primary"
+							type="submit"
 						>
-							{name}
+							Виконати запит
 						</Button>
-					))}
-					<div></div>
+						<Button
+							className="col-3"
+							style={{ marginBottom: "10px" }}
+							variant="secondary"
+							onClick={handleClear}
+						>
+							Очистити
+						</Button>
+
+						{requestsName.map((name, index) => (
+							<Button
+								className="col-3 d-flex justify-content-center"
+								style={{ marginBottom: "10px" }}
+								variant="success"
+								key={index}
+								onClick={() => handleButtonClick(index)}
+							>
+								{name}
+							</Button>
+						))}
+					</div>
 				</div>
 			</form>
 			{result && result.length > 0 ? (
