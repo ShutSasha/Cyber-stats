@@ -21,6 +21,7 @@ function Player() {
 	const [filterTo, setFilterTo] = useState(null);
 	const [filterFromYear, setFilterFromYear] = useState(null);
 	const [filterToYear, setFilterToYear] = useState(null);
+	const [selectedTeams, setSelectedTeams] = useState([]);
 
 	const openModal = () => setShowModal(true);
 	const closeModal = () => setShowModal(false);
@@ -181,8 +182,6 @@ function Player() {
 				}
 			});
 
-			console.log(players);
-			// Update global ratings
 			players.forEach((player) => {
 				const newGlobalRating = calculateGlobalRating(player, players);
 				if (Number(newGlobalRating) !== Number(player.global_rating)) {
@@ -325,6 +324,96 @@ function Player() {
 		setFilterToYear(event.target.value);
 	};
 
+	const getRandomNumberInRange = (min, max) => {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	};
+
+	const createRandomPlayer = (teamId) => {
+		const names = [
+			"John",
+			"Alice",
+			"Michael",
+			"Sophia",
+			"Sasha",
+			"Denis",
+			"Artem",
+			"Yaroslav",
+			"Viktor",
+		];
+		const surnames = ["Doe", "Smith", "Johnson", "Williams", "Ali", "Bush"];
+		const roles = [
+			"Captain",
+			"Sniper",
+			"Entry Fragger",
+			"Refragger",
+			"Support",
+			"Lurker",
+			"Rifler",
+			"Star Player",
+		]; // список ролей
+
+		const randomName = names[Math.floor(Math.random() * names.length)];
+		const randomSurname =
+			surnames[Math.floor(Math.random() * surnames.length)];
+		const randomRole = roles[Math.floor(Math.random() * roles.length)];
+
+		const player = {
+			name: randomName,
+			surname: randomSurname,
+			nickname: `${randomName.slice(0, 1)}${randomSurname}`, // Генерація псевдоніму
+			role: randomRole,
+			esports_player_points: getRandomNumberInRange(50, 200),
+			date_of_birth: "2000-01-01", // Наприклад, дата народження
+			teamTeamId: teamId,
+		};
+		const role_rating = calculateRoleRating(player, players);
+		const global_rating = calculateGlobalRating(player, players);
+		const newPlayerData = {
+			...player,
+			role_rating,
+			global_rating,
+		};
+
+		return newPlayerData;
+	};
+
+	const handleTeamSelect = (selectedOptions) => {
+		setSelectedTeams(selectedOptions || []);
+	};
+	const handleCreatePlayers = () => {
+		const filterSelectedTeams = selectedTeams.reduce((acc, el) => {
+			const filteredTeams = teams.filter(
+				(team) => Number(team.team_id) === Number(el.value)
+			);
+			return acc.concat(filteredTeams);
+		}, []);
+
+		filterSelectedTeams.forEach((team) => {
+			let findPlayers = players.filter((player) => {
+				return Number(player.teamTeamId) === Number(team.team_id);
+			});
+
+			let needCountToCreate = 5 - findPlayers.length;
+			if (Number(needCountToCreate) > 0 && Number(needCountToCreate) <= 5) {
+				for (let i = 0; i < needCountToCreate; i++) {
+					const newPlayer = createRandomPlayer(team.team_id);
+
+					axios
+						.post("http://localhost:5000/api/player", newPlayer)
+						.then((response) => {
+							const newPlayers = [...players, response.data];
+							setPlayers(newPlayers);
+							updatePlayerRatings(newPlayers);
+						})
+						.catch((error) => {
+							console.error(`Error: ${error}`);
+						});
+				}
+				window.location.reload();
+			}
+		});
+	};
+
 	return (
 		<div>
 			<>
@@ -401,6 +490,16 @@ function Player() {
 					</div>
 				</div>
 			</div>
+			<div>Створити невестачаючих гравців для команди</div>
+			<Select
+				isMulti
+				options={teams.map((team) => ({
+					value: team.team_id,
+					label: team.team_name,
+				}))}
+				onChange={handleTeamSelect}
+			/>
+			<Button onClick={() => handleCreatePlayers()}>Create players</Button>
 			<h1>Table of players</h1>
 			<Table striped bordered hover>
 				<thead>
