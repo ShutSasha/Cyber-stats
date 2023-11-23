@@ -396,9 +396,11 @@ function Player() {
 	};
 
 	const handleTeamSelect = (selectedOptions) => {
+		console.log(selectedOptions);
 		setSelectedTeams(selectedOptions || []);
 	};
 	const handleCreatePlayers = () => {
+		console.log(selectedTeams);
 		const filterSelectedTeams = selectedTeams.reduce((acc, el) => {
 			const filteredTeams = teams.filter(
 				(team) => Number(team.team_id) === Number(el.value)

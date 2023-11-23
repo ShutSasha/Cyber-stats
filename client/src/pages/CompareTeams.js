@@ -1,18 +1,196 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import Table from "react-bootstrap/Table";
 import Button from "react-bootstrap/Button";
 import Select from "react-select";
 import { toast } from "react-toastify";
 import Alert from "react-bootstrap/Alert";
+import CreatePlayersModal from "../components/CreatePlayersModal";
 
 function CompareTeams() {
 	const [selectedTeam1, setSelectedTeam1] = useState("");
 	const [selectedTeam2, setSelectedTeam2] = useState("");
 	const [winPercentage, setWinPercentage] = useState([]);
+	const [selectedTeams, setSelectedTeams] = useState([]);
 	const [teams, setTeams] = useState([]);
 	const [players, setPlayers] = useState([]);
 	const [isClear, setIsClear] = useState(false);
+	const [showModal, setShowModal] = useState(false);
+	const [numberTeam, setNumberTeam] = useState("");
+
+	const openModal = () => setShowModal(true);
+	const closeModal = () => setShowModal(false);
+
+	const calculateRoleRating = useCallback((playerData, players) => {
+		const sameRolePlayers = players.filter(
+			(player) => player.role === playerData.role
+		);
+
+		if (sameRolePlayers.length === 0) {
+			return 1;
+		}
+
+		sameRolePlayers.sort(
+			(a, b) => b.esports_player_points - a.esports_player_points
+		);
+
+		let rank = sameRolePlayers.findIndex(
+			(player) => player.esports_player_id === playerData.esports_player_id
+		);
+
+		return rank + 1;
+	}, []);
+
+	const calculateGlobalRating = useCallback((playerData, players) => {
+		if (players.length === 0) {
+			return 1;
+		}
+
+		const sortedPlayers = [...players].sort(
+			(a, b) => b.esports_player_points - a.esports_player_points
+		);
+		let rank = sortedPlayers.findIndex(
+			(player) => player.esports_player_id === playerData.esports_player_id
+		);
+
+		return rank + 1;
+	}, []);
+
+	const updatePlayerRatings = useCallback(
+		(players) => {
+			// Update role ratings
+			players.forEach((player) => {
+				const newRoleRating = calculateRoleRating(player, players);
+				if (newRoleRating !== player.role_rating) {
+					player.role_rating = newRoleRating;
+					axios
+						.put(
+							`http://localhost:5000/api/player/${player.esports_player_id}`,
+							player
+						)
+						.catch((error) => {
+							console.error(
+								`Error updating player role rating: ${error}`
+							);
+						});
+				}
+			});
+
+			players.forEach((player) => {
+				const newGlobalRating = calculateGlobalRating(player, players);
+				if (Number(newGlobalRating) !== Number(player.global_rating)) {
+					player.global_rating = newGlobalRating;
+					axios
+						.put(
+							`http://localhost:5000/api/player/${player.esports_player_id}`,
+							player
+						)
+						.catch((error) => {
+							console.error(
+								`Error updating player global rating: ${error}`
+							);
+						});
+				}
+			});
+		},
+		[calculateRoleRating, calculateGlobalRating]
+	);
+
+	const getRandomNumberInRange = (min, max) => {
+		return Math.floor(Math.random() * (max - min + 1)) + min;
+	};
+
+	const createRandomPlayer = (teamId) => {
+		const names = [
+			"John",
+			"Alice",
+			"Michael",
+			"Sophia",
+			"Sasha",
+			"Denis",
+			"Artem",
+			"Yaroslav",
+			"Viktor",
+		];
+		const surnames = ["Doe", "Smith", "Johnson", "Williams", "Ali", "Bush"];
+		const roles = [
+			"Captain",
+			"Sniper",
+			"Entry Fragger",
+			"Refragger",
+			"Support",
+			"Lurker",
+			"Rifler",
+			"Star Player",
+		];
+
+		const randomName = names[Math.floor(Math.random() * names.length)];
+		const randomSurname =
+			surnames[Math.floor(Math.random() * surnames.length)];
+		const randomRole = roles[Math.floor(Math.random() * roles.length)];
+
+		const player = {
+			name: randomName,
+			surname: randomSurname,
+			nickname: `${randomName.slice(0, 1)}${randomSurname}`, // Генерація псевдоніму
+			role: randomRole,
+			esports_player_points: getRandomNumberInRange(50, 200),
+			date_of_birth: "2000-01-01", // Наприклад, дата народження
+			teamTeamId: teamId,
+		};
+		const role_rating = calculateRoleRating(player, players);
+		const global_rating = calculateGlobalRating(player, players);
+		const newPlayerData = {
+			...player,
+			role_rating,
+			global_rating,
+		};
+
+		return newPlayerData;
+	};
+
+	useEffect(() => {
+		updatePlayerRatings(players);
+	}, [players, updatePlayerRatings]);
+
+	const handleCreatePlayers = () => {
+		console.log(selectedTeams);
+		const filterSelectedTeams = selectedTeams.reduce((acc, el) => {
+			const filteredTeams = teams.filter(
+				(team) => Number(team.team_id) === Number(el.value)
+			);
+			return acc.concat(filteredTeams);
+		}, []);
+
+		filterSelectedTeams.forEach((team) => {
+			let findPlayers = players.filter((player) => {
+				return Number(player.teamTeamId) === Number(team.team_id);
+			});
+
+			let needCountToCreate = 5 - findPlayers.length;
+			if (Number(needCountToCreate) > 0 && Number(needCountToCreate) <= 5) {
+				for (let i = 0; i < needCountToCreate; i++) {
+					const newPlayer = createRandomPlayer(team.team_id);
+
+					axios
+						.post("http://localhost:5000/api/player", newPlayer)
+						.then((response) => {
+							const newPlayers = [...players, response.data];
+							setPlayers(newPlayers);
+							updatePlayerRatings(newPlayers);
+						})
+						.catch((error) => {
+							console.error(`Error: ${error}`);
+						});
+				}
+				window.location.reload();
+			} else {
+				toast.error(
+					`У команди ${team.team_name} вже є 5 гравців, до неї не було додано ніяких гравців.`
+				);
+			}
+		});
+	};
 
 	const handleClear = () => {
 		setIsClear(true);
@@ -38,9 +216,30 @@ function CompareTeams() {
 			Number(playersTeam1.length) !== 5 ||
 			Number(playersTeam2.length) !== 5
 		) {
+			let errorMessage = "";
+
+			if (playersTeam1.length !== 5) {
+				openModal();
+				let arr = [{ value: selectedTeam1 }];
+				setSelectedTeams(arr);
+				setNumberTeam(1);
+				errorMessage += `У команді 1 не вистачає гравців. `;
+			}
+
+			if (playersTeam2.length !== 5) {
+				errorMessage += `У команді 2 не вистачає гравців. `;
+				let arr = [{ value: selectedTeam2 }];
+				openModal();
+				console.log(showModal);
+				setSelectedTeams(arr);
+				setSelectedTeams([{ value: selectedTeam2 }]);
+				console.log(selectedTeams);
+				errorMessage += `У команді 2 не вистачає гравців. `;
+			}
 			toast.error(
-				`У одній з команд не 5 гравців. Для порівняння команд в команді повинно бути 5 гравців, адже повна команда складається з 5.`
+				`Для порівняння команд необхідно по 5 гравців у кожній команді. ${errorMessage}`
 			);
+
 			return;
 		}
 
@@ -70,33 +269,14 @@ function CompareTeams() {
 		]);
 	};
 
-	useEffect(() => {
-		console.log(winPercentage);
-	}, [winPercentage]);
-	// useEffect(() => {
-	// 	axios
-	// 		.get("http://localhost:5000/api/team/23")
-	// 		.then((res) => console.log(res.data))
-	// 		.catch((err) => console.error(err));
-	// }, []);
+	useEffect(() => {}, [winPercentage]);
 
-	// useEffect(() => {
-	// 	axios
-	// 		.get("http://localhost:5000/api/tournament/8")
-	// 		.then((res) => console.log(res.data))
-	// 		.catch((err) => console.error(err));
-	// }, []);
 	useEffect(() => {
 		axios
 			.get("http://localhost:5000/api/player")
 			.then((res) => setPlayers(res.data))
 			.catch((err) => console.error(err));
 	}, []);
-
-	// useEffect(() => {
-	// 	console.log(selectedTeam1);
-	// 	console.log(selectedTeam2);
-	// }, [selectedTeam1, selectedTeam2]);
 
 	useEffect(() => {
 		axios
@@ -368,6 +548,18 @@ function CompareTeams() {
 						Clear
 					</Button>
 				</div>
+				<CreatePlayersModal
+					show={showModal}
+					onClose={closeModal}
+					onCreate={handleCreatePlayers}
+					numberTeam={numberTeam}
+				/>
+				<CreatePlayersModal
+					show={showModal}
+					onClose={closeModal}
+					onCreate={handleCreatePlayers}
+					numberTeam={numberTeam}
+				/>
 			</div>
 		</div>
 	);
